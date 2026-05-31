@@ -10,7 +10,7 @@
   }
 
   * {
-    @apply border-border;
+    box-sizing: border-box;
   }
 
   body {
@@ -53,11 +53,11 @@
 
   .prose-custom {
     @apply prose prose-slate max-w-none
-      prose-headings:text-brand-navy prose-headings:font-heading
-      prose-a:text-brand-orange prose-a:no-underline hover:prose-a:underline
-      prose-strong:text-brand-navy
-      prose-blockquote:border-brand-orange prose-blockquote:bg-orange-50 prose-blockquote:rounded-r-xl
-      prose-code:bg-slate-100 prose-code:text-brand-navy prose-code:rounded
-      prose-table:border-collapse;
+    prose-headings:text-brand-navy prose-headings:font-heading
+    prose-a:text-brand-orange prose-a:no-underline hover:prose-a:underline
+    prose-strong:text-brand-navy
+    prose-blockquote:border-brand-orange prose-blockquote:bg-orange-50 prose-blockquote:rounded-r-xl
+    prose-code:bg-slate-100 prose-code:text-brand-navy prose-code:rounded
+    prose-table:border-collapse;
   }
 }
