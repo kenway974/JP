@@ -1,6 +1,14 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_SMTP_LOGIN, // votre email de connexion Brevo
+    pass: process.env.BREVO_SMTP_KEY,   // clé SMTP Brevo (xkeysib-...)
+  },
+})
 
 const FROM = process.env.EMAIL_FROM || 'JP Clim Chauffagiste <noreply@jpclimchauffagiste.com>'
 const REPLY_TO = process.env.EMAIL_REPLY_TO || 'jpclim.chauffagiste@gmail.com'
@@ -102,7 +110,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
 </body>
 </html>`
 
-  return resend.emails.send({
+  return transporter.sendMail({
     from: FROM,
     replyTo: REPLY_TO,
     to,
@@ -111,7 +119,8 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
     attachments: [
       {
         filename: 'devis-indicatif-jpclim.pdf',
-        content: pdfBase64,
+        content: Buffer.from(pdfBase64, 'base64'),
+        contentType: 'application/pdf',
       },
     ],
   })
@@ -123,7 +132,7 @@ export async function sendCallbackRequest(data: {
   preferredTime?: string
   message?: string
 }) {
-  return resend.emails.send({
+  return transporter.sendMail({
     from: FROM,
     replyTo: REPLY_TO,
     to: REPLY_TO,
@@ -145,7 +154,7 @@ export async function sendContactForm(data: {
   subject: string
   message: string
 }) {
-  return resend.emails.send({
+  return transporter.sendMail({
     from: FROM,
     replyTo: data.email,
     to: REPLY_TO,
