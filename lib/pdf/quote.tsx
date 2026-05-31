@@ -1,6 +1,5 @@
-'use client'
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Font, renderToBuffer } from '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
   page: { fontFamily: 'Helvetica', fontSize: 10, color: '#1e293b', paddingTop: 40, paddingBottom: 40, paddingHorizontal: 50 },
@@ -166,4 +165,13 @@ export function QuotePDF({
       </Page>
     </Document>
   )
+}
+
+/** Génère le PDF en Buffer — appelé côté serveur uniquement */
+export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
+  // renderToBuffer et React.createElement sont dans le même module :
+  // pas de conflit d'instance React entre la création de l'élément et le renderer.
+  const element = React.createElement(QuotePDF, props)
+  const result = await renderToBuffer(element as React.ReactElement<any>)
+  return Buffer.from(result)
 }

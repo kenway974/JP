@@ -25,6 +25,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       firstName: lead.firstName,
       city: lead.city,
       surface: lead.surface,
+      email: lead.email ?? null,
       details: estimation.details,
     })
   } catch (err) {

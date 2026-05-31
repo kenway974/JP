@@ -10,6 +10,7 @@ interface LeadData {
   estimateMax: number
   serviceType: string
   firstName: string
+  email: string | null
   details: string[]
 }
 
@@ -29,29 +30,36 @@ function ResultatContent() {
     if (!leadId) { router.push('/estimation'); return }
     fetch(`/api/leads/${leadId}`)
       .then((r) => r.json())
-      .then(setData)
+      .then((d: LeadData) => {
+        setData(d)
+        if (d.email) setEmail(d.email)
+      })
       .catch(() => router.push('/estimation'))
   }, [leadId, router])
 
-  const handleSendPDF = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email || !email.includes('@')) { setError('Email invalide'); return }
+  const sendPDF = async (targetEmail: string) => {
+    if (!targetEmail || !targetEmail.includes('@')) { setError('Email invalide'); return }
     setSending(true)
     setError(null)
     try {
       const res = await fetch('/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadId, email, prospectId }),
+        body: JSON.stringify({ leadId, email: targetEmail, prospectId }),
       })
       if (!res.ok) throw new Error()
       setSent(true)
-      setTimeout(() => router.push(`/estimation/confirmation?pid=${prospectId}&email=${encodeURIComponent(email)}`), 3000)
+      setTimeout(() => router.push(`/estimation/confirmation?pid=${prospectId}&email=${encodeURIComponent(targetEmail)}`), 3000)
     } catch {
       setError('Erreur lors de l\'envoi. Veuillez réessayer.')
     } finally {
       setSending(false)
     }
+  }
+
+  const handleSendPDF = (e: React.FormEvent) => {
+    e.preventDefault()
+    sendPDF(email)
   }
 
   if (!data) return (
@@ -117,23 +125,40 @@ function ResultatContent() {
                 Recevez ce devis en PDF avec en bonus un <strong>guide pratique</strong> : entretien courant,
                 économies d'énergie, signaux d'alerte… des conseils concrets d'un pro.
               </p>
-              <form onSubmit={handleSendPDF} className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre@email.fr"
-                  className="flex-1 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-orange transition-colors"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={sending}
-                  className="bg-brand-orange text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-orange-dark transition-colors flex items-center gap-2 disabled:opacity-60 whitespace-nowrap"
-                >
-                  {sending ? <><Loader2 className="h-4 w-4 animate-spin" /> Envoi…</> : <>Recevoir par email <ArrowRight className="h-4 w-4" /></>}
-                </button>
-              </form>
+              {data?.email ? (
+                /* Email déjà connu — bouton direct */
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <p className="text-sm text-slate-600">
+                    Envoi à <strong>{data.email}</strong>
+                  </p>
+                  <button
+                    onClick={() => sendPDF(data.email!)}
+                    disabled={sending}
+                    className="bg-brand-orange text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-orange-dark transition-colors flex items-center gap-2 disabled:opacity-60 whitespace-nowrap"
+                  >
+                    {sending ? <><Loader2 className="h-4 w-4 animate-spin" /> Envoi…</> : <>Recevoir mon devis <ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                </div>
+              ) : (
+                /* Pas d'email — afficher le champ */
+                <form onSubmit={handleSendPDF} className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="votre@email.fr"
+                    className="flex-1 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-orange transition-colors"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="bg-brand-orange text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-orange-dark transition-colors flex items-center gap-2 disabled:opacity-60 whitespace-nowrap"
+                  >
+                    {sending ? <><Loader2 className="h-4 w-4 animate-spin" /> Envoi…</> : <>Recevoir par email <ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                </form>
+              )}
               {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               <p className="text-xs text-slate-400 mt-2">Pas de spam · Désinscription possible à tout moment</p>
             </>

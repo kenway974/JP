@@ -6,7 +6,6 @@ import { SERVICE_LABELS, HOUSING_LABELS, calculateEstimation } from '@/lib/estim
 import { z } from 'zod'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import React from 'react'
 
 const EmailSchema = z.object({
   leadId: z.string(),
@@ -26,9 +25,6 @@ export async function POST(req: NextRequest) {
       await prisma.lead.update({ where: { id: leadId }, data: { email } })
     }
 
-    const { renderToBuffer } = await import('@react-pdf/renderer')
-    const { QuotePDF } = await import('@/lib/pdf/quote')
-
     const estimation = calculateEstimation({
       serviceType: lead.serviceType as Parameters<typeof calculateEstimation>[0]['serviceType'],
       housingType: lead.housingType as Parameters<typeof calculateEstimation>[0]['housingType'],
@@ -38,23 +34,24 @@ export async function POST(req: NextRequest) {
       specificities: lead.specificities,
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(QuotePDF, {
-        firstName: lead.firstName,
-        serviceType: SERVICE_LABELS[lead.serviceType as keyof typeof SERVICE_LABELS] || lead.serviceType,
-        housingType: HOUSING_LABELS[lead.housingType as keyof typeof HOUSING_LABELS] || lead.housingType,
-        surface: lead.surface || undefined,
-        city: lead.city,
-        estimateMin: lead.estimateMin,
-        estimateMax: lead.estimateMax,
-        details: estimation.details,
-        prospectId: lead.prospectId,
-        date: format(new Date(), 'dd MMMM yyyy', { locale: fr }),
-      }) as any
-    )
+    // renderQuotePDF est défini dans le même fichier que les éléments JSX
+    // → React.createElement et renderToBuffer partagent la même instance React
+    const { renderQuotePDF } = await import('@/lib/pdf/quote')
 
-    const pdfBase64 = Buffer.from(pdfBuffer).toString('base64')
+    const pdfBuffer = await renderQuotePDF({
+      firstName: lead.firstName,
+      serviceType: SERVICE_LABELS[lead.serviceType as keyof typeof SERVICE_LABELS] || lead.serviceType,
+      housingType: HOUSING_LABELS[lead.housingType as keyof typeof HOUSING_LABELS] || lead.housingType,
+      surface: lead.surface ?? undefined,
+      city: lead.city,
+      estimateMin: lead.estimateMin,
+      estimateMax: lead.estimateMax,
+      details: estimation.details,
+      prospectId: lead.prospectId,
+      date: format(new Date(), 'dd MMMM yyyy', { locale: fr }),
+    })
+
+    const pdfBase64 = pdfBuffer.toString('base64')
 
     await sendQuoteEmail({
       to: email,
