@@ -136,7 +136,7 @@ export function EstimationWizard() {
                   onClick={() => handleChoice(currentStep.field, opt.value)}
                   className={cn(
                     'p-4 rounded-xl border-2 text-left transition-all hover:border-brand-orange hover:shadow-md group',
-                    (data as Record<string, unknown>)[currentStep.field] === opt.value
+                    (data as unknown as Record<string, unknown>)[currentStep.field] === opt.value
                       ? 'border-brand-orange bg-orange-50'
                       : 'border-slate-200 bg-white'
                   )}

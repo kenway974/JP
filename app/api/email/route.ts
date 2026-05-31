@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
       specificities: lead.specificities,
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pdfBuffer = await renderToBuffer(
       React.createElement(QuotePDF, {
         firstName: lead.firstName,
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
         details: estimation.details,
         prospectId: lead.prospectId,
         date: format(new Date(), 'dd MMMM yyyy', { locale: fr }),
-      })
+      }) as any
     )
 
     const pdfBase64 = Buffer.from(pdfBuffer).toString('base64')

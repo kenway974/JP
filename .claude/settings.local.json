@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(node_modules\\\\.bin\\\\tsc --noEmit)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" fetch origin)",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" log --oneline origin/main)",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" rebase origin/main)",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" add -A)",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" commit -m \"fix: corrige erreurs TS build et classe Tailwind border-border\")",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" add app/globals.css)",
+      "Bash(git -C \"C:/Users/kenny/Documents/DEV/JPclim\" rebase --continue)",
+      "Bash(GIT_EDITOR=true git -C \"C:/Users/kenny/Documents/DEV/JPclim\" rebase --continue)"
+    ]
+  }
+}
