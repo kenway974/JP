@@ -1,14 +1,30 @@
 import nodemailer from 'nodemailer'
+import type { Transporter } from 'nodemailer'
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_LOGIN, // votre email de connexion Brevo
-    pass: process.env.BREVO_SMTP_KEY,   // clé SMTP Brevo (xkeysib-...)
-  },
-})
+let _transporter: Transporter | null = null
+
+function getTransporter(): Transporter {
+  if (_transporter) return _transporter
+
+  const user = process.env.BREVO_SMTP_LOGIN // email de connexion Brevo
+  const pass = process.env.BREVO_SMTP_KEY   // clé SMTP Brevo (xkeysib-...)
+
+  if (!user || !pass) {
+    throw new Error(
+      'Identifiants SMTP Brevo manquants : définissez BREVO_SMTP_LOGIN et BREVO_SMTP_KEY ' +
+      'dans votre fichier .env (et dans les variables d\'environnement Vercel).'
+    )
+  }
+
+  _transporter = nodemailer.createTransport({
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
+    auth: { user, pass },
+  })
+
+  return _transporter
+}
 
 const FROM = process.env.EMAIL_FROM || 'JP Clim Chauffagiste <noreply@jpclimchauffagiste.com>'
 const REPLY_TO = process.env.EMAIL_REPLY_TO || 'jpclim.chauffagiste@gmail.com'
@@ -110,7 +126,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
 </body>
 </html>`
 
-  return transporter.sendMail({
+  return getTransporter().sendMail({
     from: FROM,
     replyTo: REPLY_TO,
     to,
@@ -132,7 +148,7 @@ export async function sendCallbackRequest(data: {
   preferredTime?: string
   message?: string
 }) {
-  return transporter.sendMail({
+  return getTransporter().sendMail({
     from: FROM,
     replyTo: REPLY_TO,
     to: REPLY_TO,
@@ -154,7 +170,7 @@ export async function sendContactForm(data: {
   subject: string
   message: string
 }) {
-  return transporter.sendMail({
+  return getTransporter().sendMail({
     from: FROM,
     replyTo: data.email,
     to: REPLY_TO,
