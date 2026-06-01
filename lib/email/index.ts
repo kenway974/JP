@@ -1,6 +1,30 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
+import type { Transporter } from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _transporter: Transporter | null = null
+
+function getTransporter(): Transporter {
+  if (_transporter) return _transporter
+
+  const user = process.env.BREVO_SMTP_LOGIN
+  const pass = process.env.BREVO_SMTP_KEY
+
+  if (!user || !pass) {
+    throw new Error(
+      'Configuration Brevo manquante : définissez BREVO_SMTP_LOGIN et BREVO_SMTP_KEY dans .env\n' +
+      'Trouvez ces valeurs sur Brevo → SMTP & API → SMTP'
+    )
+  }
+
+  _transporter = nodemailer.createTransport({
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
+    auth: { user, pass },
+  })
+
+  return _transporter
+}
 
 const FROM = process.env.EMAIL_FROM || 'JP Clim Chauffagiste <noreply@jpclimchauffagiste.com>'
 const REPLY_TO = process.env.EMAIL_REPLY_TO || 'jpclim.chauffagiste@gmail.com'
@@ -102,7 +126,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
 </body>
 </html>`
 
-  return resend.emails.send({
+  return getTransporter().sendMail({
     from: FROM,
     replyTo: REPLY_TO,
     to,
@@ -112,6 +136,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
       {
         filename: 'devis-indicatif-jpclim.pdf',
         content: Buffer.from(pdfBase64, 'base64'),
+        contentType: 'application/pdf',
       },
     ],
   })
@@ -123,7 +148,7 @@ export async function sendCallbackRequest(data: {
   preferredTime?: string
   message?: string
 }) {
-  return resend.emails.send({
+  return getTransporter().sendMail({
     from: FROM,
     replyTo: REPLY_TO,
     to: REPLY_TO,
@@ -145,7 +170,7 @@ export async function sendContactForm(data: {
   subject: string
   message: string
 }) {
-  return resend.emails.send({
+  return getTransporter().sendMail({
     from: FROM,
     replyTo: data.email,
     to: REPLY_TO,
