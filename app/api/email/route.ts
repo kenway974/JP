@@ -34,8 +34,6 @@ export async function POST(req: NextRequest) {
       specificities: lead.specificities,
     })
 
-    // renderQuotePDF est défini dans le même fichier que les éléments JSX
-    // → React.createElement et renderToBuffer partagent la même instance React
     const { renderQuotePDF } = await import('@/lib/pdf/quote')
 
     const pdfBuffer = await renderQuotePDF({
@@ -47,6 +45,8 @@ export async function POST(req: NextRequest) {
       estimateMin: lead.estimateMin,
       estimateMax: lead.estimateMax,
       details: estimation.details,
+      lowFactors: estimation.lowFactors,
+      highFactors: estimation.highFactors,
       prospectId: lead.prospectId,
       date: format(new Date(), 'dd MMMM yyyy', { locale: fr }),
     })
@@ -59,6 +59,8 @@ export async function POST(req: NextRequest) {
       serviceType: SERVICE_LABELS[lead.serviceType as keyof typeof SERVICE_LABELS] || lead.serviceType,
       estimateMin: lead.estimateMin,
       estimateMax: lead.estimateMax,
+      lowFactors: estimation.lowFactors,
+      highFactors: estimation.highFactors,
       pdfBase64,
       prospectId: lead.prospectId,
     })

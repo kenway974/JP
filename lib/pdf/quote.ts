@@ -9,18 +9,21 @@ export interface QuotePDFProps {
   estimateMin: number
   estimateMax: number
   details: string[]
+  lowFactors: string[]
+  highFactors: string[]
   prospectId: string
   date: string
 }
 
-const NAVY  = '#1a2744'
+const NAVY   = '#1a2744'
 const ORANGE = '#f97316'
 const SLATE  = '#64748b'
-const LIGHT  = '#f8fafc'
-const AMBER_BG = '#fef3c7'
+const AMBER_BG   = '#fef3c7'
 const AMBER_TEXT = '#92400e'
-const GREEN_BG = '#f0fdf4'
+const GREEN_BG   = '#f0fdf4'
 const GREEN_TEXT = '#166534'
+const ORANGE_BG  = '#fff7ed'
+const ORANGE_TEXT = '#9a3412'
 
 function fmt(n: number) {
   return n.toLocaleString('fr-FR') + ' €'
@@ -29,7 +32,7 @@ function fmt(n: number) {
 export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
   const {
     firstName, serviceType, housingType, surface, city,
-    estimateMin, estimateMax, details, prospectId, date,
+    estimateMin, estimateMax, details, lowFactors, highFactors, prospectId, date,
   } = props
 
   return new Promise((resolve, reject) => {
@@ -39,24 +42,21 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks)))
     doc.on('error', reject)
 
-    const W = doc.page.width - 100 // largeur utile (marges 50 de chaque côté)
-    const L = 50  // marge gauche
+    const W = doc.page.width - 100
+    const L = 50
 
     // ── EN-TÊTE ────────────────────────────────────────────────────────────
     doc.rect(L, 40, W, 70).fill(NAVY)
-
     doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold')
        .text('JP Clim Chauffagiste', L + 16, 52)
     doc.fillColor('#94a3b8').fontSize(9).font('Helvetica')
        .text('Chauffage · Climatisation · VMC · Plomberie · Électricité', L + 16, 74)
        .text('Île-de-France — 06 52 49 52 90', L + 16, 86)
-
     doc.fillColor(ORANGE).fontSize(14).font('Helvetica-Bold')
        .text('DEVIS INDICATIF', L, 52, { align: 'right', width: W })
     doc.fillColor('#94a3b8').fontSize(9).font('Helvetica')
        .text(`Date : ${date}`, L, 74, { align: 'right', width: W })
        .text(`Réf. : ${prospectId}`, L, 86, { align: 'right', width: W })
-
     doc.y = 130
 
     // ── AVERTISSEMENT ──────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
        )
     doc.y = warnY + 52
 
-    // ── SECTION TITRE ──────────────────────────────────────────────────────
+    // ── HELPER SECTION TITLE ───────────────────────────────────────────────
     function sectionTitle(title: string) {
       const y = doc.y + 8
       doc.fillColor(NAVY).fontSize(11).font('Helvetica-Bold').text(title, L, y)
@@ -82,7 +82,6 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
 
     // ── TABLEAU INFOS ──────────────────────────────────────────────────────
     sectionTitle('Informations de la demande')
-
     const rows = [
       ['Client', firstName],
       ['Ville', city],
@@ -92,14 +91,10 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
     ]
     const rowH = 20
     const col1W = W * 0.55
-
-    // header
     doc.rect(L, doc.y, W, rowH).fill(NAVY)
     doc.fillColor('#ffffff').fontSize(9).font('Helvetica-Bold')
        .text('Champ', L + 8, doc.y + 5, { width: col1W })
     doc.text('Valeur', L + col1W + 8, doc.y - rowH + 5, { width: W - col1W })
-    doc.y = doc.y
-
     rows.forEach(([label, value], i) => {
       const rowY = doc.y
       if (i % 2 === 1) doc.rect(L, rowY, W, rowH).fill('#f8fafc')
@@ -109,24 +104,49 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
       doc.text(value, L + col1W + 8, rowY + 6, { width: W - col1W })
       doc.y = rowY + rowH
     })
-
     doc.y += 4
 
     // ── ESTIMATION ─────────────────────────────────────────────────────────
     sectionTitle('Estimation indicative')
-
     const estY = doc.y
     doc.rect(L, estY, W, 68).fill('#eff6ff')
     doc.rect(L, estY, 4, 68).fill(NAVY)
-
     doc.fillColor(SLATE).fontSize(9).font('Helvetica')
        .text('Fourchette estimée (TTC, main d\'œuvre + matériaux courants) :', L + 16, estY + 10, { width: W - 20 })
     doc.fillColor(NAVY).fontSize(22).font('Helvetica-Bold')
        .text(`${fmt(estimateMin)}  –  ${fmt(estimateMax)}`, L + 16, estY + 24, { width: W - 20 })
     doc.fillColor(SLATE).fontSize(8).font('Helvetica')
        .text(`Facteurs pris en compte : ${details.join(' · ')}`, L + 16, estY + 52, { width: W - 20 })
-
     doc.y = estY + 76
+
+    // ── EXPLICATION DE LA FOURCHETTE ───────────────────────────────────────
+    sectionTitle('Pourquoi cette fourchette ?')
+
+    // Côté bas
+    const lowH = 18 + lowFactors.length * 13
+    const lowY = doc.y
+    doc.rect(L, lowY, W, lowH).fill(GREEN_BG)
+    doc.rect(L, lowY, 3, lowH).fill('#22c55e')
+    doc.fillColor(GREEN_TEXT).fontSize(9).font('Helvetica-Bold')
+       .text(`✅  Ce qui vous rapproche de ${fmt(estimateMin)} (bas de fourchette)`, L + 10, lowY + 6, { width: W - 20 })
+    lowFactors.forEach((f, i) => {
+      doc.fillColor('#374151').fontSize(8).font('Helvetica')
+         .text(`• ${f}`, L + 18, lowY + 18 + i * 13, { width: W - 30 })
+    })
+    doc.y = lowY + lowH + 4
+
+    // Côté haut
+    const highH = 18 + highFactors.length * 13
+    const highY = doc.y
+    doc.rect(L, highY, W, highH).fill(ORANGE_BG)
+    doc.rect(L, highY, 3, highH).fill(ORANGE)
+    doc.fillColor(ORANGE_TEXT).fontSize(9).font('Helvetica-Bold')
+       .text(`⚠️  Ce qui pourrait monter vers ${fmt(estimateMax)} (haut de fourchette)`, L + 10, highY + 6, { width: W - 20 })
+    highFactors.forEach((f, i) => {
+      doc.fillColor('#374151').fontSize(8).font('Helvetica')
+         .text(`• ${f}`, L + 18, highY + 18 + i * 13, { width: W - 30 })
+    })
+    doc.y = highY + highH + 8
 
     // ── GUIDE PRATIQUE ─────────────────────────────────────────────────────
     sectionTitle('🎁 Votre guide pratique offert')

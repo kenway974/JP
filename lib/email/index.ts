@@ -25,12 +25,14 @@ export interface SendQuoteEmailParams {
   serviceType: string
   estimateMin: number
   estimateMax: number
+  lowFactors: string[]
+  highFactors: string[]
   pdfBase64: string
   prospectId: string
 }
 
 export async function sendQuoteEmail(params: SendQuoteEmailParams) {
-  const { to, firstName, serviceType, estimateMin, estimateMax, pdfBase64, prospectId } = params
+  const { to, firstName, serviceType, estimateMin, estimateMax, lowFactors, highFactors, pdfBase64, prospectId } = params
 
   const trackingPixelUrl = `${SITE_URL}/api/crm/track?id=${prospectId}&event=QUOTE_EMAIL_OPENED`
 
@@ -51,6 +53,15 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
     .estimate-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; text-align: center; margin: 24px 0; }
     .estimate-box .amount { font-size: 32px; font-weight: bold; color: #1a2744; }
     .estimate-box .disclaimer { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .range-explain { margin: 0 0 24px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .range-explain .re-title { background: #1a2744; color: #fff; padding: 10px 16px; font-size: 13px; font-weight: bold; }
+    .re-low { background: #f0fdf4; padding: 14px 16px; border-bottom: 1px solid #e2e8f0; }
+    .re-high { background: #fff7ed; padding: 14px 16px; }
+    .re-label { font-size: 12px; font-weight: bold; margin-bottom: 6px; }
+    .re-low .re-label { color: #166534; }
+    .re-high .re-label { color: #9a3412; }
+    .re-low ul, .re-high ul { margin: 0; padding-left: 18px; }
+    .re-low li, .re-high li { font-size: 12px; color: #374151; margin-bottom: 3px; }
     .cta-btn { display: inline-block; background: #f97316; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 8px; }
     .cta-secondary { display: inline-block; background: #1a2744; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 8px; }
     .guide-section { background: #eff6ff; border-left: 4px solid #f97316; padding: 20px; border-radius: 0 8px 8px 0; margin: 24px 0; }
@@ -74,6 +85,18 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
         <div style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Estimation indicative</div>
         <div class="amount">${estimateMin.toLocaleString('fr-FR')} € – ${estimateMax.toLocaleString('fr-FR')} €</div>
         <div class="disclaimer">⚠️ Ce montant est indicatif et non contractuel. Le tarif réel sera établi après visite sur site.</div>
+      </div>
+
+      <div class="range-explain">
+        <div class="re-title">Pourquoi cette fourchette ?</div>
+        <div class="re-low">
+          <div class="re-label">✅ Ce qui vous rapproche de ${estimateMin.toLocaleString('fr-FR')} € (bas de fourchette)</div>
+          <ul>${lowFactors.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
+        <div class="re-high">
+          <div class="re-label">⚠️ Ce qui pourrait monter vers ${estimateMax.toLocaleString('fr-FR')} € (haut de fourchette)</div>
+          <ul>${highFactors.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
       </div>
 
       <div class="guide-section">
