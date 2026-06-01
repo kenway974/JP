@@ -6,23 +6,12 @@ let _transporter: Transporter | null = null
 function getTransporter(): Transporter {
   if (_transporter) return _transporter
 
-  const user = process.env.BREVO_SMTP_LOGIN
-  const pass = process.env.BREVO_SMTP_KEY
-
-  if (!user || !pass) {
-    throw new Error(
-      'Configuration Brevo manquante : définissez BREVO_SMTP_LOGIN et BREVO_SMTP_KEY dans .env\n' +
-      'Trouvez ces valeurs sur Brevo → SMTP & API → SMTP'
-    )
+  const smtpUrl = process.env.SMTP_URL
+  if (!smtpUrl) {
+    throw new Error('Variable d\'environnement SMTP_URL manquante.')
   }
 
-  _transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
-    auth: { user, pass },
-  })
-
+  _transporter = nodemailer.createTransport(smtpUrl)
   return _transporter
 }
 
