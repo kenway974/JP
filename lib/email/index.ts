@@ -1,38 +1,6 @@
-import nodemailer from 'nodemailer'
-import type { Transporter } from 'nodemailer'
+import { Resend } from 'resend'
 
-let _transporter: Transporter | null = null
-
-function getTransporter(): Transporter {
-  if (_transporter) return _transporter
-
-  // URL SMTP générique (comme le projet Estimo) — ex :
-  //   smtps://user%40gmail.com:motdepasse_app@smtp.gmail.com:465
-  const smtpUrl = process.env.SMTP_URL
-  if (smtpUrl) {
-    _transporter = nodemailer.createTransport(smtpUrl)
-    return _transporter
-  }
-
-  // Fallback : identifiants Brevo SMTP explicites
-  const user = process.env.BREVO_SMTP_LOGIN
-  const pass = process.env.BREVO_SMTP_KEY
-  if (user && pass) {
-    _transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
-      secure: false,
-      auth: { user, pass },
-    })
-    return _transporter
-  }
-
-  throw new Error(
-    'Configuration SMTP manquante : définissez SMTP_URL dans .env\n' +
-    'Exemple Gmail : smtps://jpclim.chauffagiste%40gmail.com:motdepasse_app@smtp.gmail.com:465\n' +
-    'Créez un mot de passe d\'application sur : https://myaccount.google.com/apppasswords'
-  )
-}
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM = process.env.EMAIL_FROM || 'JP Clim Chauffagiste <noreply@jpclimchauffagiste.com>'
 const REPLY_TO = process.env.EMAIL_REPLY_TO || 'jpclim.chauffagiste@gmail.com'
@@ -134,7 +102,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
 </body>
 </html>`
 
-  return getTransporter().sendMail({
+  return resend.emails.send({
     from: FROM,
     replyTo: REPLY_TO,
     to,
@@ -144,7 +112,6 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
       {
         filename: 'devis-indicatif-jpclim.pdf',
         content: Buffer.from(pdfBase64, 'base64'),
-        contentType: 'application/pdf',
       },
     ],
   })
@@ -156,7 +123,7 @@ export async function sendCallbackRequest(data: {
   preferredTime?: string
   message?: string
 }) {
-  return getTransporter().sendMail({
+  return resend.emails.send({
     from: FROM,
     replyTo: REPLY_TO,
     to: REPLY_TO,
@@ -178,7 +145,7 @@ export async function sendContactForm(data: {
   subject: string
   message: string
 }) {
-  return getTransporter().sendMail({
+  return resend.emails.send({
     from: FROM,
     replyTo: data.email,
     to: REPLY_TO,
