@@ -21,14 +21,15 @@ export interface EstimationResult {
   highFactors: string[]
 }
 
+// Fourchettes resserrées — ratio max/min ~2x (was ~4x)
 const BASE_PRICES: Record<ServiceType, { min: number; max: number; label: string }> = {
-  CHAUFFAGE:      { min: 800,  max: 3500,  label: 'Installation / remplacement chauffage' },
-  CLIMATISATION:  { min: 900,  max: 3200,  label: 'Installation climatisation réversible' },
-  VMC:            { min: 500,  max: 2500,  label: 'Installation VMC' },
-  PLOMBERIE:      { min: 200,  max: 1500,  label: 'Travaux de plomberie' },
-  ELECTRICITE:    { min: 300,  max: 2000,  label: 'Travaux électriques' },
-  ENTRETIEN:      { min: 100,  max: 350,   label: 'Entretien / maintenance' },
-  RENOVATION:     { min: 2000, max: 15000, label: 'Rénovation complète' },
+  CHAUFFAGE:     { min: 1500, max: 3000,  label: 'Installation / remplacement chauffage' },
+  CLIMATISATION: { min: 900,  max: 2000,  label: 'Installation climatisation réversible' },
+  VMC:           { min: 500,  max: 1500,  label: 'Installation VMC' },
+  PLOMBERIE:     { min: 200,  max: 800,   label: 'Travaux de plomberie' },
+  ELECTRICITE:   { min: 300,  max: 1000,  label: 'Travaux électriques' },
+  ENTRETIEN:     { min: 90,   max: 220,   label: 'Entretien / maintenance' },
+  RENOVATION:    { min: 3000, max: 10000, label: 'Rénovation complète' },
 }
 
 export function calculateEstimation(input: EstimationInput): EstimationResult {
@@ -39,56 +40,56 @@ export function calculateEstimation(input: EstimationInput): EstimationResult {
   const lowFactors: string[] = []
   const highFactors: string[] = []
 
-  // Facteur surface
+  // Surface
   if (input.surface <= 30) {
-    minFactor *= 0.8; maxFactor *= 0.85
-    details.push('Petit logement (≤ 30 m²) : tarif réduit')
+    minFactor *= 0.85; maxFactor *= 0.9
+    details.push(`Petit logement (${input.surface} m²)`)
     lowFactors.push(`Petite surface (${input.surface} m²) — moins de matériaux et de main-d'œuvre`)
   } else if (input.surface <= 60) {
     details.push(`Surface standard (${input.surface} m²)`)
   } else if (input.surface <= 100) {
-    minFactor *= 1.2; maxFactor *= 1.3
-    details.push(`Surface importante (${input.surface} m²) : supplément`)
+    minFactor *= 1.15; maxFactor *= 1.2
+    details.push(`Surface importante (${input.surface} m²)`)
     highFactors.push(`Surface importante (${input.surface} m²) — plus de matériaux nécessaires`)
   } else {
-    minFactor *= 1.4; maxFactor *= 1.6
-    details.push(`Grande surface (${input.surface} m²) : supplément`)
+    minFactor *= 1.35; maxFactor *= 1.45
+    details.push(`Grande surface (${input.surface} m²)`)
     highFactors.push(`Grande surface (${input.surface} m²) — volume de travaux significatif`)
   }
 
-  // Facteur type de logement
+  // Type de logement
   if (input.housingType === 'MAISON') {
-    minFactor *= 1.15; maxFactor *= 1.25
-    details.push('Maison individuelle : accès toiture/combles')
+    minFactor *= 1.1; maxFactor *= 1.15
+    details.push('Maison individuelle')
     highFactors.push('Maison individuelle — accès toiture ou combles souvent nécessaire')
   } else if (input.housingType === 'LOCAL_COMMERCIAL') {
-    minFactor *= 1.2; maxFactor *= 1.4
-    details.push('Local commercial : contraintes spécifiques')
+    minFactor *= 1.15; maxFactor *= 1.25
+    details.push('Local commercial')
     highFactors.push('Local commercial — contraintes techniques et réglementaires spécifiques')
   } else {
     lowFactors.push('Appartement — configuration standard, pas de contrainte toiture')
   }
 
-  // Facteur âge du bâtiment
+  // Âge du bâtiment
   if (input.buildingAge === 'PLUS_20_ANS') {
-    minFactor *= 1.1; maxFactor *= 1.3
-    details.push('Bâtiment ancien : adaptations possibles nécessaires')
+    minFactor *= 1.1; maxFactor *= 1.2
+    details.push('Bâtiment ancien (> 20 ans)')
     highFactors.push('Bâtiment de plus de 20 ans — adaptations ou mises aux normes possibles')
   } else if (input.buildingAge === 'NEUF') {
     minFactor *= 0.9; maxFactor *= 0.95
-    details.push('Bâtiment neuf : installation facilitée')
+    details.push('Bâtiment neuf')
     lowFactors.push('Bâtiment neuf — installation simplifiée, pas d\'adaptation nécessaire')
   } else if (input.buildingAge === 'MOINS_10_ANS') {
     details.push('Bâtiment récent (< 10 ans)')
-    lowFactors.push('Bâtiment récent — installations aux normes, peu d\'imprévus')
+    lowFactors.push('Bâtiment récent — peu d\'imprévus attendus')
   } else {
     details.push('Bâtiment de 10 à 20 ans')
   }
 
   // Urgence
   if (input.urgency === 'URGENT') {
-    minFactor *= 1.15; maxFactor *= 1.2
-    details.push('Intervention urgente : majoration horaires')
+    minFactor *= 1.15; maxFactor *= 1.15
+    details.push('Intervention urgente')
     highFactors.push('Intervention urgente — majoration pour mobilisation rapide')
   } else {
     details.push('Travaux planifiés')
@@ -97,17 +98,17 @@ export function calculateEstimation(input: EstimationInput): EstimationResult {
 
   // Spécificités
   if (input.specificities.includes('ACCESS_DIFFICILE')) {
-    minFactor *= 1.1; maxFactor *= 1.2
-    details.push('Accès difficile : majoration déplacement')
+    minFactor *= 1.1; maxFactor *= 1.15
+    details.push('Accès difficile')
     highFactors.push('Accès difficile — majoration temps de déplacement et manutention')
   }
   if (input.specificities.includes('COPROPRIETE')) {
-    details.push('Copropriété : coordination avec syndic incluse')
+    details.push('Copropriété')
     highFactors.push('Copropriété — coordination syndic et contraintes horaires possibles')
   }
   if (input.specificities.includes('MULTI_PIECES')) {
-    minFactor *= 1.2; maxFactor *= 1.3
-    details.push('Multi-pièces : installation multi-splits')
+    minFactor *= 1.2; maxFactor *= 1.25
+    details.push('Multi-pièces')
     highFactors.push('Installation multi-pièces — plusieurs unités intérieures')
   }
 
@@ -119,8 +120,8 @@ export function calculateEstimation(input: EstimationInput): EstimationResult {
   }
 
   return {
-    min: Math.round(base.min * minFactor),
-    max: Math.round(base.max * maxFactor),
+    min: Math.round(base.min * minFactor / 50) * 50,
+    max: Math.round(base.max * maxFactor / 50) * 50,
     label: base.label,
     details,
     lowFactors,
