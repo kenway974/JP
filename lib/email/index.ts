@@ -6,31 +6,25 @@ let _transporter: Transporter | null = null
 function getTransporter(): Transporter {
   if (_transporter) return _transporter
 
-  // 1) URL SMTP générique (comme le projet Estimo) — ex :
-  //    smtps://user%40gmail.com:motdepasse_app@smtp.gmail.com:465
-  const smtpUrl = process.env.SMTP_URL
-  if (smtpUrl) {
-    _transporter = nodemailer.createTransport(smtpUrl)
-    return _transporter
+  const user = process.env.GMAIL_USER
+  const pass = process.env.GMAIL_APP_PASSWORD
+
+  if (!user || !pass) {
+    throw new Error(
+      'Configuration Gmail manquante : définissez GMAIL_USER et GMAIL_APP_PASSWORD dans .env\n' +
+      'GMAIL_APP_PASSWORD doit être un mot de passe d\'application Gmail (pas votre mot de passe principal).\n' +
+      'Créez-en un sur : https://myaccount.google.com/apppasswords'
+    )
   }
 
-  // 2) Fallback : identifiants Brevo SMTP explicites
-  const user = process.env.BREVO_SMTP_LOGIN
-  const pass = process.env.BREVO_SMTP_KEY
-  if (user && pass) {
-    _transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
-      secure: false,
-      auth: { user, pass },
-    })
-    return _transporter
-  }
+  _transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: { user, pass },
+  })
 
-  throw new Error(
-    'Configuration SMTP manquante : définissez SMTP_URL (ex : smtps://user:pass@smtp.gmail.com:465) ' +
-    'ou bien BREVO_SMTP_LOGIN + BREVO_SMTP_KEY dans .env (et sur Vercel).'
-  )
+  return _transporter
 }
 
 const FROM = process.env.EMAIL_FROM || 'JP Clim Chauffagiste <noreply@jpclimchauffagiste.com>'
