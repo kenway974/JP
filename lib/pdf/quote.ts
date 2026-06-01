@@ -25,6 +25,12 @@ const GREEN_TEXT = '#166534'
 const ORANGE_BG  = '#fff7ed'
 const ORANGE_TEXT = '#9a3412'
 
+const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Mon Chauffagiste'
+const COMPANY_PHONE = process.env.NEXT_PUBLIC_COMPANY_PHONE || 'XX XX XX XX XX'
+const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL || 'contact@example.com'
+const COMPANY_LOCATION = process.env.NEXT_PUBLIC_COMPANY_LOCATION || 'Votre région'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.example.com'
+
 function fmt(n: number) {
   return n.toLocaleString('fr-FR') + ' €'
 }
@@ -36,7 +42,7 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
   } = props
 
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'A4', margin: 50, info: { Title: `Devis indicatif JP Clim — ${firstName}`, Author: 'JP Clim Chauffagiste' } })
+    const doc = new PDFDocument({ size: 'A4', margin: 50, info: { Title: `Devis indicatif — ${firstName}`, Author: COMPANY_NAME } })
     const chunks: Buffer[] = []
     doc.on('data', (c: Buffer) => chunks.push(c))
     doc.on('end', () => resolve(Buffer.concat(chunks)))
@@ -48,10 +54,10 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
     // ── EN-TÊTE ────────────────────────────────────────────────────────────
     doc.rect(L, 40, W, 70).fill(NAVY)
     doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold')
-       .text('JP Clim Chauffagiste', L + 16, 52)
+       .text(COMPANY_NAME, L + 16, 52)
     doc.fillColor('#94a3b8').fontSize(9).font('Helvetica')
        .text('Chauffage · Climatisation · VMC · Plomberie · Électricité', L + 16, 74)
-       .text('Île-de-France — 06 52 49 52 90', L + 16, 86)
+       .text(`${COMPANY_LOCATION} — ${COMPANY_PHONE}`, L + 16, 86)
     doc.fillColor(ORANGE).fontSize(14).font('Helvetica-Bold')
        .text('DEVIS INDICATIF', L, 52, { align: 'right', width: W })
     doc.fillColor('#94a3b8').fontSize(9).font('Helvetica')
@@ -192,16 +198,16 @@ export async function renderQuotePDF(props: QuotePDFProps): Promise<Buffer> {
     const ctaY = doc.y + 4
     doc.rect(L, ctaY, W, 44).fill(ORANGE)
     doc.fillColor('#ffffff').fontSize(11).font('Helvetica-Bold')
-       .text('Prêt pour un devis réel sur site ? Appelez le 06 52 49 52 90', L + 10, ctaY + 8, { align: 'center', width: W - 20 })
+       .text(`Prêt pour un devis réel sur site ? Appelez le ${COMPANY_PHONE}`, L + 10, ctaY + 8, { align: 'center', width: W - 20 })
     doc.fillColor('#ffedd5').fontSize(8.5).font('Helvetica')
-       .text('Ou prenez rendez-vous en ligne sur jpclimchauffagiste.com — Gratuit, sans engagement', L + 10, ctaY + 26, { align: 'center', width: W - 20 })
+       .text(`Ou prenez rendez-vous en ligne sur ${SITE_URL.replace(/^https?:\/\//, '')} — Gratuit, sans engagement`, L + 10, ctaY + 26, { align: 'center', width: W - 20 })
 
     // ── PIED DE PAGE ───────────────────────────────────────────────────────
     const footerY = doc.page.height - 50
     doc.moveTo(L, footerY).lineTo(L + W, footerY).strokeColor('#e2e8f0').lineWidth(0.5).stroke()
     doc.fillColor('#94a3b8').fontSize(7.5).font('Helvetica')
        .text(
-         `JP Clim Chauffagiste · Île-de-France · 06 52 49 52 90 · jpclim.chauffagiste@gmail.com\nDocument indicatif non contractuel · Réf. ${prospectId} · ${date}`,
+         `${COMPANY_NAME} · ${COMPANY_LOCATION} · ${COMPANY_PHONE} · ${COMPANY_EMAIL}\nDocument indicatif non contractuel · Réf. ${prospectId} · ${date}`,
          L, footerY + 6, { align: 'center', width: W }
        )
 

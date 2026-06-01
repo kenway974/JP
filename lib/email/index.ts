@@ -15,9 +15,15 @@ function getTransporter(): Transporter {
   return _transporter
 }
 
-const FROM = process.env.EMAIL_FROM || 'JP Clim Chauffagiste <noreply@jpclimchauffagiste.com>'
-const REPLY_TO = process.env.EMAIL_REPLY_TO || 'jpclim.chauffagiste@gmail.com'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.jpclimchauffagiste.com'
+const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Mon Chauffagiste'
+const COMPANY_PHONE = process.env.NEXT_PUBLIC_COMPANY_PHONE || 'XX XX XX XX XX'
+const COMPANY_PHONE_RAW = process.env.NEXT_PUBLIC_COMPANY_PHONE_RAW || 'XXXXXXXXXX'
+const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL || 'contact@example.com'
+const COMPANY_LOCATION = process.env.NEXT_PUBLIC_COMPANY_LOCATION || 'Votre région'
+const COMPANY_SINCE = process.env.NEXT_PUBLIC_COMPANY_SINCE || '2010'
+const FROM = process.env.EMAIL_FROM || `${COMPANY_NAME} <noreply@example.com>`
+const REPLY_TO = process.env.EMAIL_REPLY_TO || COMPANY_EMAIL
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.example.com'
 
 export interface SendQuoteEmailParams {
   to: string
@@ -42,7 +48,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Votre devis indicatif — JP Clim Chauffagiste</title>
+  <title>Votre devis indicatif — ${COMPANY_NAME}</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
     .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -73,7 +79,7 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
 <body>
   <div class="container">
     <div class="header">
-      <h1>JP Clim Chauffagiste</h1>
+      <h1>${COMPANY_NAME}</h1>
       <p>Votre devis indicatif est prêt ✓</p>
     </div>
     <div class="body">
@@ -124,13 +130,13 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
       </div>
 
       <p style="margin-top: 24px; font-size: 14px; color: #64748b;">
-        Pour toute question, appelez directement : <strong><a href="tel:0652495290" style="color: #f97316;">06 52 49 52 90</a></strong><br>
-        Disponible 7j/7 — Île-de-France
+        Pour toute question, appelez directement : <strong><a href="tel:${COMPANY_PHONE_RAW}" style="color: #f97316;">${COMPANY_PHONE}</a></strong><br />
+        Disponible 7j/7 — ${COMPANY_LOCATION}
       </p>
     </div>
     <div class="footer">
-      <p>JP Clim Chauffagiste — Île-de-France — Depuis 2008<br>
-      06 52 49 52 90 | jpclim.chauffagiste@gmail.com</p>
+      <p>${COMPANY_NAME} — ${COMPANY_LOCATION} — Depuis ${COMPANY_SINCE}<br />
+      ${COMPANY_PHONE} | ${COMPANY_EMAIL}</p>
       <p><a href="${SITE_URL}/confidentialite" style="color: #94a3b8;">Politique de confidentialité</a> | <a href="${SITE_URL}/mentions-legales" style="color: #94a3b8;">Mentions légales</a></p>
     </div>
   </div>
@@ -142,11 +148,11 @@ export async function sendQuoteEmail(params: SendQuoteEmailParams) {
     from: FROM,
     replyTo: REPLY_TO,
     to,
-    subject: `Votre devis indicatif JP Clim — ${serviceType}`,
+    subject: `Votre devis indicatif — ${serviceType}`,
     html,
     attachments: [
       {
-        filename: 'devis-indicatif-jpclim.pdf',
+        filename: 'devis-indicatif.pdf',
         content: Buffer.from(pdfBase64, 'base64'),
         contentType: 'application/pdf',
       },
