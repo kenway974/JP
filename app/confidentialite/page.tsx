@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { COMPANY_NAME, COMPANY_EMAIL, COMPANY_LOCATION } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Politique de confidentialité | JP Clim Chauffagiste',
-  description: 'Politique de confidentialité et gestion des données personnelles — JP Clim Chauffagiste',
+  title: `Politique de confidentialité | ${COMPANY_NAME}`,
+  description: `Politique de confidentialité et gestion des données personnelles — ${COMPANY_NAME}`,
   robots: { index: false },
 }
 
@@ -17,7 +18,7 @@ export default function ConfidentialitePage() {
           {[
             {
               title: '1. Responsable du traitement',
-              content: 'JP Clim Chauffagiste, entreprise individuelle — jpclim.chauffagiste@gmail.com — Île-de-France.',
+              content: `${COMPANY_NAME}, entreprise individuelle — ${COMPANY_EMAIL} — ${COMPANY_LOCATION}.`,
             },
             {
               title: '2. Données collectées',
@@ -41,7 +42,7 @@ export default function ConfidentialitePage() {
             },
             {
               title: '7. Vos droits (RGPD)',
-              content: 'Conformément au RGPD et à la loi Informatique et Libertés, vous disposez des droits d\'accès, de rectification, d\'effacement, de limitation, de portabilité et d\'opposition. Pour exercer ces droits, contactez-nous à jpclim.chauffagiste@gmail.com. Vous pouvez également adresser une réclamation à la CNIL (cnil.fr).',
+              content: `Conformément au RGPD et à la loi Informatique et Libertés, vous disposez des droits d'accès, de rectification, d'effacement, de limitation, de portabilité et d'opposition. Pour exercer ces droits, contactez-nous à ${COMPANY_EMAIL}. Vous pouvez également adresser une réclamation à la CNIL (cnil.fr).`,
             },
             {
               title: '8. Sécurité',

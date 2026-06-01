@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LayoutDashboard, Users, Calendar, Star, FileText, LogOut } from 'lucide-react'
+import { COMPANY_SHORT_NAME } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Administration | JP Clim',
+  title: `Administration | ${COMPANY_SHORT_NAME}`,
   robots: { index: false, follow: false },
 }
 
@@ -20,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-slate-100 flex">
       <aside className="w-56 bg-brand-navy text-white flex flex-col">
         <div className="p-5 border-b border-white/10">
-          <div className="font-bold text-lg">JP Clim</div>
+          <div className="font-bold text-lg">{COMPANY_SHORT_NAME}</div>
           <div className="text-xs text-slate-400">Administration</div>
         </div>
         <nav className="flex-1 p-3 space-y-1">

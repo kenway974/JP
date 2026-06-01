@@ -2,6 +2,7 @@
 import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle, Loader2, Phone } from 'lucide-react'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
 
 const TIME_SLOTS = [
   'Le matin (8h-12h)',
@@ -34,7 +35,7 @@ function RappelContent() {
       if (!res.ok) throw new Error()
       setSuccess(true)
     } catch {
-      setError('Erreur lors de la demande. Appelez directement le 06 52 49 52 90.')
+      setError(`Erreur lors de la demande. Appelez directement le ${COMPANY_PHONE}.`)
     } finally {
       setLoading(false)
     }
@@ -46,9 +47,9 @@ function RappelContent() {
         <div className="bg-white rounded-2xl p-10 shadow-sm border border-slate-100 text-center max-w-md">
           <CheckCircle className="h-14 w-14 text-emerald-500 mx-auto mb-4" />
           <h1 className="font-heading font-bold text-brand-navy text-2xl mb-3">Demande envoyée !</h1>
-          <p className="text-slate-500">Jean-Pierre vous rappellera le plus vite possible sur le {form.phone}.</p>
+          <p className="text-slate-500">Nous vous rappellerons le plus vite possible sur le {form.phone}.</p>
           <p className="text-sm text-slate-400 mt-2">En urgence, appelez directement :</p>
-          <a href="tel:0652495290" className="btn-primary mt-3 w-full justify-center">📞 06 52 49 52 90</a>
+          <a href={`tel:${COMPANY_PHONE_RAW}`} className="btn-primary mt-3 w-full justify-center">📞 {COMPANY_PHONE}</a>
         </div>
       </div>
     )
@@ -64,7 +65,7 @@ function RappelContent() {
             </div>
             <div>
               <h1 className="font-heading font-bold text-brand-navy text-2xl">Être rappelé(e)</h1>
-              <p className="text-slate-500 text-sm">JP Clim vous rappelle à votre créneau</p>
+              <p className="text-slate-500 text-sm">{COMPANY_NAME} vous rappelle à votre créneau</p>
             </div>
           </div>
 

@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { EstimationWizard } from '@/components/wizard/EstimationWizard'
 import { Shield, Clock, Gift } from 'lucide-react'
+import { COMPANY_LOCATION, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Estimation gratuite — Devis chauffage, clim, VMC en Île-de-France',
+  title: `Estimation gratuite — Devis chauffage, clim, VMC en ${COMPANY_LOCATION}`,
   description: 'Obtenez une estimation du coût de vos travaux en 2 minutes. Chauffage, climatisation, VMC, plomberie, électricité. Devis indicatif gratuit + guide pratique offert.',
 }
 
@@ -38,10 +39,10 @@ export default function EstimationPage() {
               <div className="mt-6 pt-5 border-t border-slate-100">
                 <p className="text-xs text-slate-400 mb-3">Une urgence ? Appelez directement :</p>
                 <a
-                  href="tel:0652495290"
+                  href={`tel:${COMPANY_PHONE_RAW}`}
                   className="flex items-center justify-center gap-2 bg-brand-navy text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-navy-light transition-colors"
                 >
-                  📞 06 52 49 52 90
+                  📞 {COMPANY_PHONE}
                 </a>
               </div>
             </div>
@@ -54,7 +55,7 @@ export default function EstimationPage() {
                 Estimation gratuite en ligne
               </h1>
               <p className="text-slate-500 mb-8">
-                Répondez à 7 questions pour obtenir une fourchette de prix indicative pour vos travaux en Île-de-France.
+                Répondez à 7 questions pour obtenir une fourchette de prix indicative pour vos travaux en {COMPANY_LOCATION}.
               </p>
               <EstimationWizard />
             </div>

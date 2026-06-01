@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_EMAIL, COMPANY_LOCATION } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Mentions légales | JP Clim Chauffagiste',
-  description: 'Mentions légales de JP Clim Chauffagiste — Île-de-France',
+  title: `Mentions légales | ${COMPANY_NAME}`,
+  description: `Mentions légales de ${COMPANY_NAME} — ${COMPANY_LOCATION}`,
   robots: { index: false },
 }
 
@@ -16,13 +17,11 @@ export default function MentionsLegalesPage() {
           <section className="mb-8">
             <h2 className="font-heading font-semibold text-xl text-brand-navy mb-3">1. Éditeur du site</h2>
             <p className="text-slate-600 leading-relaxed">
-              <strong>Raison sociale :</strong> JP Clim Chauffagiste<br />
+              <strong>Raison sociale :</strong> {COMPANY_NAME}<br />
               <strong>Forme juridique :</strong> Entreprise individuelle<br />
-              <strong>Date de création :</strong> Mars 2024<br />
-              <strong>Zone d'intervention :</strong> Île-de-France<br />
-              <strong>Téléphone :</strong> 06 52 49 52 90<br />
-              <strong>Email :</strong> jpclim.chauffagiste@gmail.com<br />
-              <strong>Directeur de publication :</strong> Jean-Pierre (gérant)
+              <strong>Zone d&apos;intervention :</strong> {COMPANY_LOCATION}<br />
+              <strong>Téléphone :</strong> {COMPANY_PHONE}<br />
+              <strong>Email :</strong> {COMPANY_EMAIL}
             </p>
           </section>
 
@@ -38,14 +37,14 @@ export default function MentionsLegalesPage() {
           <section className="mb-8">
             <h2 className="font-heading font-semibold text-xl text-brand-navy mb-3">3. Propriété intellectuelle</h2>
             <p className="text-slate-600 leading-relaxed">
-              L'ensemble du contenu de ce site (textes, images, logos, visuels) est la propriété exclusive de JP Clim Chauffagiste, sauf mentions contraires. Toute reproduction, même partielle, est interdite sans autorisation préalable.
+              L&apos;ensemble du contenu de ce site (textes, images, logos, visuels) est la propriété exclusive de {COMPANY_NAME}, sauf mentions contraires. Toute reproduction, même partielle, est interdite sans autorisation préalable.
             </p>
           </section>
 
           <section className="mb-8">
             <h2 className="font-heading font-semibold text-xl text-brand-navy mb-3">4. Limitation de responsabilité</h2>
             <p className="text-slate-600 leading-relaxed">
-              Les informations fournies sur ce site, notamment les estimations tarifaires, sont données à titre indicatif et ne constituent pas un engagement contractuel. JP Clim Chauffagiste décline toute responsabilité pour les erreurs ou omissions dans le contenu du site.
+              Les informations fournies sur ce site, notamment les estimations tarifaires, sont données à titre indicatif et ne constituent pas un engagement contractuel. {COMPANY_NAME} décline toute responsabilité pour les erreurs ou omissions dans le contenu du site.
             </p>
           </section>
 

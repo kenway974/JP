@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Phone, Mail, Instagram, Clock, MapPin, CheckCircle, Loader2, Send } from 'lucide-react'
+import { COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION } from '@/lib/config'
 
 const SUBJECTS = [
   'Demande de devis',
@@ -31,7 +32,7 @@ export default function ContactPage() {
       if (!res.ok) throw new Error()
       setSuccess(true)
     } catch {
-      setError('Erreur lors de l\'envoi. Appelez directement le 06 52 49 52 90.')
+      setError(`Erreur lors de l'envoi. Appelez directement le ${COMPANY_PHONE}.`)
     } finally {
       setLoading(false)
     }
@@ -50,10 +51,10 @@ export default function ContactPage() {
           {/* Infos contact */}
           <div className="space-y-5">
             {[
-              { icon: Phone, label: 'Téléphone', value: '06 52 49 52 90', href: 'tel:0652495290', sub: 'Disponible 24h/7j — urgences' },
-              { icon: Mail, label: 'Email', value: 'jpclim.chauffagiste@gmail.com', href: 'mailto:jpclim.chauffagiste@gmail.com', sub: 'Réponse sous 24h' },
-              { icon: Instagram, label: 'Instagram', value: '@jpclim.chauffagiste', href: 'https://instagram.com/jpclim.chauffagiste', sub: 'Actualités & réalisations' },
-              { icon: MapPin, label: 'Zone d\'intervention', value: 'Île-de-France', href: undefined, sub: 'Paris + 7 départements' },
+              { icon: Phone, label: 'Téléphone', value: COMPANY_PHONE, href: `tel:${COMPANY_PHONE_RAW}`, sub: 'Disponible 24h/7j — urgences' },
+              { icon: Mail, label: 'Email', value: COMPANY_EMAIL, href: `mailto:${COMPANY_EMAIL}`, sub: 'Réponse sous 24h' },
+              { icon: Instagram, label: 'Instagram', value: 'Instagram', href: 'https://instagram.com', sub: 'Actualités & réalisations' },
+              { icon: MapPin, label: 'Zone d\'intervention', value: COMPANY_LOCATION, href: undefined, sub: 'Toute la région' },
               { icon: Clock, label: 'Horaires', value: 'Lun–Sam : 7h–20h', href: undefined, sub: 'Urgences : 24h/7j' },
             ].map(({ icon: Icon, label, value, href, sub }) => (
               <div key={label} className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex items-start gap-3">
@@ -81,7 +82,7 @@ export default function ContactPage() {
               <div className="text-center py-8">
                 <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
                 <h2 className="text-xl font-semibold text-brand-navy mb-2">Message envoyé !</h2>
-                <p className="text-slate-500">Jean-Pierre vous répondra sous 24h.</p>
+                <p className="text-slate-500">Nous vous répondrons sous 24h.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

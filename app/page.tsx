@@ -6,10 +6,11 @@ import { FAQSchema } from '@/components/seo/SchemaOrg'
 import { prisma } from '@/lib/prisma'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { BlogCard } from '@/components/blog/BlogCard'
+import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION, COMPANY_SINCE } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Chauffagiste Île-de-France — Installation, Entretien, Dépannage | JP Clim',
-  description: 'JP Clim Chauffagiste intervient en Île-de-France pour l\'installation, l\'entretien et le dépannage de chaudières, pompes à chaleur, climatisation et VMC. Devis gratuit en ligne — réponse sous 24h.',
+  title: `Chauffagiste ${COMPANY_LOCATION} — Installation, Entretien, Dépannage | ${COMPANY_SHORT_NAME}`,
+  description: `${COMPANY_NAME} intervient en ${COMPANY_LOCATION} pour l'installation, l'entretien et le dépannage de chaudières, pompes à chaleur, climatisation et VMC. Devis gratuit en ligne — réponse sous 24h.`,
 }
 
 const SERVICES = [
@@ -22,10 +23,10 @@ const SERVICES = [
 ]
 
 const FAQS = [
-  { question: 'JP Clim intervient dans quelle zone géographique ?', answer: 'JP Clim Chauffagiste intervient dans toute l\'Île-de-France : Paris et ses 7 départements (Seine-et-Marne, Yvelines, Essonne, Hauts-de-Seine, Seine-Saint-Denis, Val-de-Marne, Val-d\'Oise).' },
+  { question: `${COMPANY_SHORT_NAME} intervient dans quelle zone géographique ?`, answer: `${COMPANY_NAME} intervient dans toute la région ${COMPANY_LOCATION}.` },
   { question: 'Comment obtenir un devis pour mes travaux ?', answer: 'Utilisez notre formulaire d\'estimation en ligne (gratuit, sans engagement) pour obtenir une fourchette de prix en quelques minutes. Un devis définitif et contractuel est établi lors d\'une visite sur site gratuite.' },
-  { question: 'Intervenez-vous en urgence le week-end ou la nuit ?', answer: 'Oui, JP Clim est disponible 24h/24, 7j/7 pour les urgences (panne de chauffage, fuite, dépannage). Appelez le 06 52 49 52 90.' },
-  { question: 'Êtes-vous certifié RGE pour les aides à la rénovation ?', answer: 'Oui, JP Clim est certifié RGE (Reconnu Garant de l\'Environnement), ce qui vous permet de bénéficier des aides de l\'État : MaPrimeRénov\', CEE, éco-PTZ pour vos travaux de rénovation énergétique.' },
+  { question: 'Intervenez-vous en urgence le week-end ou la nuit ?', answer: `Oui, ${COMPANY_SHORT_NAME} est disponible 24h/24, 7j/7 pour les urgences (panne de chauffage, fuite, dépannage). Appelez le ${COMPANY_PHONE}.` },
+  { question: 'Êtes-vous certifié RGE pour les aides à la rénovation ?', answer: `Oui, ${COMPANY_SHORT_NAME} est certifié RGE (Reconnu Garant de l'Environnement), ce qui vous permet de bénéficier des aides de l'État : MaPrimeRénov', CEE, éco-PTZ pour vos travaux de rénovation énergétique.` },
   { question: 'Quel est le coût d\'un entretien chaudière ?', answer: 'L\'entretien annuel d\'une chaudière gaz est obligatoire (décret 2009-649). Notre tarif indicatif est de 100 à 180€ TTC selon le modèle. Obtenez votre estimation précise via notre formulaire en ligne.' },
   { question: 'Quelle est la différence entre une PAC air/air et air/eau ?', answer: 'La PAC air/air chauffe et refroidit directement l\'air des pièces (idéale pour appartements), tandis que la PAC air/eau transfère la chaleur à un circuit d\'eau pour alimenter radiateurs et eau chaude sanitaire (parfaite pour remplacer une chaudière en maison).' },
 ]
@@ -61,7 +62,7 @@ export default async function HomePage() {
     <>
       <FAQSchema faqs={FAQS} />
 
-      {/* ─── Hero ──────────────────────────────────────────────────────── */}
+      {/* ─── Hero ───────────────────────────────────────────── */}
       <section className="bg-hero-gradient text-white py-20 md:py-32 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-10 left-10 text-[200px] leading-none">🔥</div>
@@ -71,12 +72,12 @@ export default async function HomePage() {
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 mb-4">
               <span className="bg-brand-orange/20 text-brand-orange text-sm px-3 py-1 rounded-full font-medium">
-                ✓ Expérience depuis 2008 · Île-de-France
+                ✓ Expérience depuis {COMPANY_SINCE} · {COMPANY_LOCATION}
               </span>
             </div>
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
               Votre chauffagiste de confiance en{' '}
-              <span className="text-brand-orange">Île-de-France</span>
+              <span className="text-brand-orange">{COMPANY_LOCATION}</span>
             </h1>
             <p className="text-xl text-slate-300 mb-8 leading-relaxed">
               Installation, entretien et dépannage en chauffage, climatisation, VMC, plomberie et électricité.
@@ -90,11 +91,11 @@ export default async function HomePage() {
                 Estimation gratuite <ArrowRight className="h-5 w-5" />
               </Link>
               <a
-                href="tel:0652495290"
+                href={`tel:${COMPANY_PHONE_RAW}`}
                 className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-xl transition-colors text-lg"
               >
                 <Phone className="h-5 w-5 text-brand-orange" />
-                06 52 49 52 90
+                {COMPANY_PHONE}
               </a>
             </div>
             <div className="flex flex-wrap gap-6 mt-10">
@@ -114,22 +115,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Badges de confiance ───────────────────────────────────────── */}
+      {/* ─── Badges de confiance ─────────────────────────────────── */}
       <section className="py-12 bg-slate-50">
         <div className="container-site">
           <TrustBadges />
         </div>
       </section>
 
-      {/* ─── Services ──────────────────────────────────────────────────── */}
+      {/* ─── Services ────────────────────────────────────────────── */}
       <section className="section-padding" id="services">
         <div className="container-site">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-navy mb-4">
-              Nos domaines d'expertise
+              Nos domaines d&apos;expertise
             </h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-lg">
-              Une seule entreprise pour tous vos besoins en génie climatique, plomberie et électricité en Île-de-France.
+              Une seule entreprise pour tous vos besoins en génie climatique, plomberie et électricité en {COMPANY_LOCATION}.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -159,7 +160,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── CTA tunnel ────────────────────────────────────────────────── */}
+      {/* ─── CTA tunnel ──────────────────────────────────────────── */}
       <section className="bg-cta-gradient py-16 md:py-20">
         <div className="container-site text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
@@ -176,7 +177,7 @@ export default async function HomePage() {
               Estimer mes travaux gratuitement <ArrowRight className="h-5 w-5" />
             </Link>
             <a
-              href="tel:0652495290"
+              href={`tel:${COMPANY_PHONE_RAW}`}
               className="bg-white/20 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/30 transition-colors text-lg inline-flex items-center gap-2"
             >
               <Phone className="h-5 w-5" /> Appeler directement
@@ -191,11 +192,11 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-navy mb-6">
-                15+ ans d'expérience au service des Franciliens
+                15+ ans d&apos;expérience au service des clients
               </h2>
               <p className="text-slate-600 text-lg leading-relaxed mb-6">
-                Jean-Pierre, gérant de JP Clim Chauffagiste, exerce le métier de chauffagiste depuis 2008.
-                Fort de cette expérience sur le terrain, il a fondé son entreprise en mars 2024 pour proposer
+                {COMPANY_NAME} exerce le métier de chauffagiste depuis {COMPANY_SINCE}.
+                Fort de cette expérience sur le terrain, nous proposons
                 un service de qualité, personnalisé et transparent, sans intermédiaire.
               </p>
               <p className="text-slate-600 leading-relaxed mb-8">
@@ -207,7 +208,7 @@ export default async function HomePage() {
                   { value: '15+', label: 'Années d\'expérience' },
                   { value: '500+', label: 'Clients satisfaits' },
                   { value: '24h/7j', label: 'Disponibilité' },
-                  { value: '100%', label: 'Île-de-France' },
+                  { value: '100%', label: COMPANY_LOCATION },
                 ].map(({ value, label }) => (
                   <div key={label} className="bg-white rounded-xl p-4 text-center shadow-sm">
                     <div className="text-2xl font-bold text-brand-orange">{value}</div>
@@ -236,7 +237,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Avis clients ──────────────────────────────────────────────── */}
+      {/* ─── Avis clients ──────────────────────────────────────────── */}
       {reviews.length > 0 && (
         <section className="section-padding" id="avis">
           <div className="container-site">
@@ -246,7 +247,7 @@ export default async function HomePage() {
                 <span className="font-bold text-brand-navy text-xl ml-2">4.9/5</span>
               </div>
               <h2 className="text-3xl font-heading font-bold text-brand-navy mb-3">Ce que disent nos clients</h2>
-              <p className="text-slate-500">Avis vérifiés de clients ayant fait appel à JP Clim en Île-de-France.</p>
+              <p className="text-slate-500">Avis vérifiés de clients ayant fait appel à {COMPANY_SHORT_NAME} en {COMPANY_LOCATION}.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {reviews.map((r) => (
@@ -262,7 +263,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── FAQ ───────────────────────────────────────────────────────── */}
+      {/* ─── FAQ ───────────────────────────────────────────────────── */}
       <section className="section-padding bg-slate-50" id="faq">
         <div className="container-site">
           <div className="max-w-3xl mx-auto">
@@ -283,7 +284,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Blog ──────────────────────────────────────────────────────── */}
+      {/* ─── Blog ─────────────────────────────────────────────────────── */}
       {posts.length > 0 && (
         <section className="section-padding" id="blog">
           <div className="container-site">
@@ -303,7 +304,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── CTA final ─────────────────────────────────────────────────── */}
+      {/* ─── CTA final ───────────────────────────────────────────────── */}
       <section className="bg-brand-navy py-16 text-center">
         <div className="container-site">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">

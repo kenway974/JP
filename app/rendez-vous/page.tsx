@@ -6,6 +6,7 @@ import { fr } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { TimeSlot } from '@/lib/calendar/types'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
 
 function BookingContent() {
   const searchParams = useSearchParams()
@@ -49,7 +50,7 @@ function BookingContent() {
       if (!res.ok) throw new Error()
       setSuccess(true)
     } catch {
-      setError('Erreur lors de la réservation. Réessayez ou appelez le 06 52 49 52 90.')
+      setError(`Erreur lors de la réservation. Réessayez ou appelez le ${COMPANY_PHONE}.`)
     } finally {
       setSubmitting(false)
     }
@@ -62,7 +63,7 @@ function BookingContent() {
           <CheckCircle className="h-14 w-14 text-emerald-500 mx-auto mb-4" />
           <h1 className="font-heading font-bold text-brand-navy text-2xl mb-3">Demande de RDV envoyée !</h1>
           <p className="text-slate-500 mb-2">
-            Jean-Pierre vous contactera sous 24h pour confirmer le rendez-vous.
+            {COMPANY_NAME} vous contactera sous 24h pour confirmer le rendez-vous.
           </p>
           {selectedSlot && (
             <div className="bg-slate-50 rounded-xl p-4 mt-4 text-sm text-slate-700">
@@ -70,7 +71,7 @@ function BookingContent() {
               🕐 {selectedSlot.startTime} – {selectedSlot.endTime}
             </div>
           )}
-          <a href="tel:0652495290" className="btn-primary mt-6 w-full justify-center">
+          <a href={`tel:${COMPANY_PHONE_RAW}`} className="btn-primary mt-6 w-full justify-center">
             📞 Confirmer par téléphone
           </a>
         </div>
@@ -85,7 +86,7 @@ function BookingContent() {
           Prendre rendez-vous
         </h1>
         <p className="text-slate-500 text-center mb-10">
-          Choisissez un créneau pour votre visite diagnostic gratuite. Jean-Pierre vous confirmera sous 24h.
+          Choisissez un créneau pour votre visite diagnostic gratuite. {COMPANY_NAME} vous confirmera sous 24h.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -214,7 +215,7 @@ function BookingContent() {
                 {selectedSlot ? 'Confirmer le rendez-vous' : 'Sélectionnez un créneau'}
               </button>
               <p className="text-xs text-slate-400 text-center">
-                Gratuit · Sans engagement · Jean-Pierre vous confirme sous 24h
+                Gratuit · Sans engagement · Confirmation sous 24h
               </p>
             </form>
           </div>

@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { CheckCircle, Calendar, Phone, Mail, ArrowRight, Star } from 'lucide-react'
+import { CheckCircle, Calendar, Phone, ArrowRight, Star } from 'lucide-react'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Devis envoyé — Prochaines étapes | JP Clim',
+  title: `Devis envoyé — Prochaines étapes | ${COMPANY_NAME}`,
   description: 'Votre devis indicatif et votre guide pratique ont été envoyés par email. Découvrez les prochaines étapes pour votre projet.',
 }
 
@@ -27,7 +28,7 @@ export default async function ConfirmationPage({
           </h1>
           {email && (
             <p className="text-slate-500 mb-2">
-              Consultez votre boîte mail à l'adresse <strong>{email}</strong>.
+              Consultez votre boîte mail à l&apos;adresse <strong>{email}</strong>.
             </p>
           )}
           <p className="text-slate-500 text-sm">
@@ -42,7 +43,7 @@ export default async function ConfirmationPage({
             {[
               { icon: '📋', text: 'Votre devis indicatif personnalisé en PDF' },
               { icon: '🔧', text: 'Guide : entretien courant que vous pouvez faire vous-même' },
-              { icon: '⚡', text: '5 réglages pour économiser jusqu\'à 20% d\'énergie' },
+              { icon: '⚡', text: '5 réglages pour économiser jusqu\'au 20% d\''énergie' },
               { icon: '🚨', text: 'Signaux d\'alerte : quand appeler un pro d\'urgence' },
               { icon: '📞', text: 'Liens pour prendre RDV ou être rappelé directement' },
             ].map(({ icon, text }) => (
@@ -83,7 +84,7 @@ export default async function ConfirmationPage({
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5" />
                 <div>
-                  <div className="font-semibold">Être rappelé(e) par Jean-Pierre</div>
+                  <div className="font-semibold">Être rappelé(e)</div>
                   <div className="text-xs text-slate-400">Choisissez votre créneau préféré</div>
                 </div>
               </div>
@@ -91,13 +92,13 @@ export default async function ConfirmationPage({
             </Link>
 
             <a
-              href="tel:0652495290"
+              href={`tel:${COMPANY_PHONE_RAW}`}
               className="flex items-center justify-between bg-white/10 hover:bg-white/20 text-white p-4 rounded-xl transition-colors group"
             >
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-brand-orange" />
                 <div>
-                  <div className="font-semibold">Appeler directement : 06 52 49 52 90</div>
+                  <div className="font-semibold">Appeler directement : {COMPANY_PHONE}</div>
                   <div className="text-xs text-slate-400">Disponible 7j/7 — Réponse immédiate</div>
                 </div>
               </div>
@@ -112,7 +113,7 @@ export default async function ConfirmationPage({
             {[1,2,3,4,5].map((i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
           </div>
           <p className="text-slate-600 text-sm italic">
-            "Très réactif, travail soigné et prix honnête. Je recommande vivement JP Clim pour tout projet de chauffage en Île-de-France."
+            &ldquo;Très réactif, travail soigné et prix honnête. Je recommande vivement {COMPANY_NAME} pour tout projet de chauffage en {COMPANY_LOCATION}.&rdquo;
           </p>
           <p className="text-xs text-slate-400 mt-2">— Thomas B., Versailles</p>
         </div>

@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { ArrowLeft, ArrowRight, Clock, Calendar } from 'lucide-react'
 import { BlogCard } from '@/components/blog/BlogCard'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION } from '@/lib/config'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -100,24 +101,24 @@ export default async function BlogPostPage({ params }: Props) {
 
             {/* Auteur */}
             <div className="mt-10 pt-6 border-t border-slate-100 flex items-center gap-4">
-              <div className="w-12 h-12 bg-brand-navy rounded-full flex items-center justify-center text-white font-bold">JP</div>
+              <div className="w-12 h-12 bg-brand-navy rounded-full flex items-center justify-center text-white font-bold">JC</div>
               <div>
-                <div className="font-semibold text-brand-navy">Jean-Pierre</div>
-                <div className="text-sm text-slate-500">Gérant JP Clim Chauffagiste · Île-de-France · Expérience depuis 2008</div>
+                <div className="font-semibold text-brand-navy">{COMPANY_NAME}</div>
+                <div className="text-sm text-slate-500">{COMPANY_LOCATION} · Expérience professionnelle</div>
               </div>
             </div>
           </article>
 
           {/* CTA intégré */}
           <div className="bg-brand-navy text-white rounded-2xl p-8 mb-8">
-            <h2 className="font-heading font-bold text-xl mb-3">Besoin d'un professionnel ?</h2>
-            <p className="text-slate-400 text-sm mb-5">JP Clim intervient en Île-de-France pour tous vos travaux de chauffage, climatisation et VMC.</p>
+            <h2 className="font-heading font-bold text-xl mb-3">Besoin d&apos;un professionnel ?</h2>
+            <p className="text-slate-400 text-sm mb-5">{COMPANY_NAME} intervient en {COMPANY_LOCATION} pour tous vos travaux de chauffage, climatisation et VMC.</p>
             <div className="flex flex-wrap gap-3">
               <Link href="/estimation" className="bg-brand-orange hover:bg-brand-orange-dark text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors inline-flex items-center gap-2">
                 Estimation gratuite <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="tel:0652495290" className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
-                📞 06 52 49 52 90
+              <a href={`tel:${COMPANY_PHONE_RAW}`} className="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+                📞 {COMPANY_PHONE}
               </a>
             </div>
           </div>

@@ -5,29 +5,28 @@ import { Footer } from '@/components/layout/Footer'
 import { CookieBanner } from '@/components/layout/CookieBanner'
 import { LocalBusinessSchema } from '@/components/seo/SchemaOrg'
 import { Toaster } from 'react-hot-toast'
+import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_SINCE, SITE_URL } from '@/lib/config'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plus-jakarta', display: 'swap' })
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.jpclimchauffagiste.com'
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'JP Clim Chauffagiste — Installation, Entretien & Dépannage en Île-de-France',
-    template: '%s | JP Clim Chauffagiste',
+    default: `${COMPANY_NAME} — Installation, Entretien & Dépannage en ${COMPANY_LOCATION}`,
+    template: `%s | ${COMPANY_NAME}`,
   },
-  description: 'Chauffagiste en Île-de-France depuis 2008. Installation chaudière, pompe à chaleur, climatisation, VMC, plomberie. Devis gratuit en ligne. Disponible 24h/7j.',
+  description: `Chauffagiste en ${COMPANY_LOCATION} depuis ${COMPANY_SINCE}. Installation chaudière, pompe à chaleur, climatisation, VMC, plomberie. Devis gratuit en ligne. Disponible 24h/7j.`,
   keywords: [
-    'chauffagiste île-de-france', 'installation chaudière paris', 'pompe à chaleur idf',
-    'climatisation réversible paris', 'entretien chaudière', 'dépannage chauffage urgence',
-    'VMC installation île-de-france', 'plombier chauffagiste paris', 'génie climatique idf',
-    'installation PAC île-de-france', 'plancher chauffant paris', 'remplacement chaudière gaz',
+    `chauffagiste ${COMPANY_LOCATION.toLowerCase()}`, 'installation chaudière', 'pompe à chaleur',
+    'climatisation réversible', 'entretien chaudière', 'dépannage chauffage urgence',
+    'VMC installation', 'plombier chauffagiste', 'génie climatique',
+    'installation PAC', 'plancher chauffant', 'remplacement chaudière gaz',
   ],
-  authors: [{ name: 'JP Clim Chauffagiste' }],
-  creator: 'JP Clim Chauffagiste',
-  publisher: 'JP Clim Chauffagiste',
+  authors: [{ name: COMPANY_NAME }],
+  creator: COMPANY_NAME,
+  publisher: COMPANY_NAME,
   robots: {
     index: true,
     follow: true,
@@ -37,15 +36,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: SITE_URL,
-    siteName: 'JP Clim Chauffagiste',
-    title: 'JP Clim Chauffagiste — Ile-de-France',
-    description: 'Chauffagiste en Île-de-France depuis 2008. Devis gratuit en ligne.',
-    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'JP Clim Chauffagiste Île-de-France' }],
+    siteName: COMPANY_NAME,
+    title: `${COMPANY_NAME} — ${COMPANY_LOCATION}`,
+    description: `Chauffagiste en ${COMPANY_LOCATION} depuis ${COMPANY_SINCE}. Devis gratuit en ligne.`,
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: `${COMPANY_NAME} ${COMPANY_LOCATION}` }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'JP Clim Chauffagiste — Île-de-France',
-    description: 'Installation, entretien et dépannage en chauffage, climatisation et VMC en Île-de-France.',
+    title: `${COMPANY_NAME} — ${COMPANY_LOCATION}`,
+    description: `Installation, entretien et dépannage en chauffage, climatisation et VMC en ${COMPANY_LOCATION}.`,
     images: ['/images/og-image.jpg'],
   },
   alternates: { canonical: SITE_URL },
