@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Phone, Mail, Instagram, MapPin, Clock, Flame, Shield, Award } from 'lucide-react'
+import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, COMPANY_SINCE } from '@/lib/config'
 
 export function Footer() {
   return (
@@ -13,12 +14,12 @@ export function Footer() {
                 <Flame className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="font-bold text-white text-base">JP Clim</span>
+                <span className="font-bold text-white text-base">{COMPANY_SHORT_NAME}</span>
                 <span className="text-slate-400 text-sm block">Chauffagiste</span>
               </div>
             </div>
             <p className="text-sm leading-relaxed mb-4">
-              Entreprise familiale spécialisée en chauffage, climatisation, VMC, plomberie et électricité en Île-de-France. Plus de 15 ans d’expérience à votre service.
+              Entreprise familiale spécialisée en chauffage, climatisation, VMC, plomberie et électricité en {COMPANY_LOCATION}. Plus de 15 ans d&apos;expérience à votre service.
             </p>
             <div className="flex gap-3">
               <div className="flex items-center gap-1 text-xs">
@@ -27,7 +28,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-1 text-xs">
                 <Award className="h-4 w-4 text-brand-orange" />
-                <span>Depuis 2008</span>
+                <span>Depuis {COMPANY_SINCE}</span>
               </div>
             </div>
           </div>
@@ -83,26 +84,26 @@ export function Footer() {
             <h3 className="font-semibold text-white mb-4">Contact</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <a href="tel:0652495290" className="flex items-center gap-2 hover:text-white transition-colors group">
+                <a href={`tel:${COMPANY_PHONE_RAW}`} className="flex items-center gap-2 hover:text-white transition-colors group">
                   <Phone className="h-4 w-4 text-brand-orange group-hover:scale-110 transition-transform" />
-                  <span>06 52 49 52 90</span>
+                  <span>{COMPANY_PHONE}</span>
                 </a>
               </li>
               <li>
-                <a href="mailto:jpclim.chauffagiste@gmail.com" className="flex items-center gap-2 hover:text-white transition-colors">
+                <a href={`mailto:${COMPANY_EMAIL}`} className="flex items-center gap-2 hover:text-white transition-colors">
                   <Mail className="h-4 w-4 text-brand-orange" />
-                  <span className="break-all">jpclim.chauffagiste@gmail.com</span>
+                  <span className="break-all">{COMPANY_EMAIL}</span>
                 </a>
               </li>
               <li>
-                <a href="https://instagram.com/jpclim.chauffagiste" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
                   <Instagram className="h-4 w-4 text-brand-orange" />
-                  <span>@jpclim.chauffagiste</span>
+                  <span>Instagram</span>
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-brand-orange mt-0.5 flex-shrink-0" />
-                <span>Île-de-France</span>
+                <span>{COMPANY_LOCATION}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Clock className="h-4 w-4 text-brand-orange mt-0.5 flex-shrink-0" />
@@ -113,8 +114,8 @@ export function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} JP Clim Chauffagiste. Tous droits réservés.</p>
-          <p>Chauffagiste Île-de-France · Installation · Entretien · Dépannage</p>
+          <p>© {new Date().getFullYear()} {COMPANY_NAME}. Tous droits réservés.</p>
+          <p>Chauffagiste {COMPANY_LOCATION} · Installation · Entretien · Dépannage</p>
         </div>
       </div>
     </footer>

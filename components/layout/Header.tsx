@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Phone, Menu, X, Flame } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
 
 const NAV_LINKS = [
   { href: '/', label: 'Accueil' },
@@ -25,7 +26,7 @@ export function Header() {
               <Flame className="h-5 w-5 text-white" />
             </div>
             <div>
-              <span className="font-heading font-bold text-white text-base leading-tight block">JP Clim</span>
+              <span className="font-heading font-bold text-white text-base leading-tight block">{COMPANY_SHORT_NAME}</span>
               <span className="text-xs text-slate-400 leading-tight block">Chauffagiste</span>
             </div>
           </Link>
@@ -50,11 +51,11 @@ export function Header() {
 
           {/* CTA phone */}
           <a
-            href="tel:0652495290"
+            href={`tel:${COMPANY_PHONE_RAW}`}
             className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-full text-white text-sm font-medium"
           >
             <Phone className="h-4 w-4 text-brand-orange" />
-            06 52 49 52 90
+            {COMPANY_PHONE}
           </a>
 
           {/* Mobile menu button */}
@@ -88,11 +89,11 @@ export function Header() {
               </Link>
             ))}
             <a
-              href="tel:0652495290"
+              href={`tel:${COMPANY_PHONE_RAW}`}
               className="flex items-center gap-2 px-3 py-2 text-sm text-white font-medium"
             >
               <Phone className="h-4 w-4 text-brand-orange" />
-              06 52 49 52 90
+              {COMPANY_PHONE}
             </a>
           </nav>
         </div>

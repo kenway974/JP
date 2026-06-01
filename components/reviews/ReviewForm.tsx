@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { StarRating } from './StarRating'
 import { Loader2, CheckCircle } from 'lucide-react'
+import { COMPANY_NAME } from '@/lib/config'
 
 export function ReviewForm() {
   const [rating, setRating] = useState(0)
@@ -99,7 +100,7 @@ export function ReviewForm() {
           value={form.content}
           onChange={(e) => setForm({ ...form, content: e.target.value })}
           rows={4}
-          placeholder="Partagez votre expérience avec JP Clim…"
+          placeholder={`Partagez votre expérience avec ${COMPANY_NAME}…`}
           className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange resize-none"
           required
           minLength={20}
