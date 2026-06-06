@@ -43,7 +43,7 @@ export default async function ConfirmationPage({
             {[
               { icon: '📋', text: 'Votre devis indicatif personnalisé en PDF' },
               { icon: '🔧', text: 'Guide : entretien courant que vous pouvez faire vous-même' },
-              { icon: '⚡', text: '5 réglages pour économiser jusqu\'au 20% d\''énergie' },
+              { icon: '⚡', text: "5 réglages pour économiser jusqu'au 20% d'énergie" },
               { icon: '🚨', text: 'Signaux d\'alerte : quand appeler un pro d\'urgence' },
               { icon: '📞', text: 'Liens pour prendre RDV ou être rappelé directement' },
             ].map(({ icon, text }) => (
