@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     const lead = await prisma.lead.findUnique({ where: { id } })
     if (!lead) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
 
-    const estimation = calculateEstimation({
+    const estimation = await calculateEstimation({
       serviceType: lead.serviceType as Parameters<typeof calculateEstimation>[0]['serviceType'],
       housingType: lead.housingType as Parameters<typeof calculateEstimation>[0]['housingType'],
       surface: lead.surface || 50,

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     const data = CreateLeadSchema.parse(body)
-    const estimation = calculateEstimation({
+    const estimation = await calculateEstimation({
       serviceType: data.serviceType,
       housingType: data.housingType,
       surface: data.surface || 50,

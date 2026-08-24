@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       await prisma.lead.update({ where: { id: leadId }, data: { email } })
     }
 
-    const estimation = calculateEstimation({
+    const estimation = await calculateEstimation({
       serviceType: lead.serviceType as Parameters<typeof calculateEstimation>[0]['serviceType'],
       housingType: lead.housingType as Parameters<typeof calculateEstimation>[0]['housingType'],
       surface: lead.surface || 50,

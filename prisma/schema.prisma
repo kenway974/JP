@@ -167,3 +167,20 @@ enum ReviewSource {
   SITE
   GOOGLE
 }
+
+model EstimationBasePrice {
+  id          String      @id @default(uuid())
+  serviceType ServiceType @unique
+  min         Int
+  max         Int
+  updatedAt   DateTime    @updatedAt
+}
+
+model EstimationFactor {
+  id            String   @id @default(uuid())
+  key           String   @unique
+  minMultiplier Float
+  maxMultiplier Float
+  active        Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+}
