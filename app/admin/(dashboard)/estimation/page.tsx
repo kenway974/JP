@@ -108,7 +108,7 @@ export default function AdminEstimationPage() {
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
         <h2 className="font-semibold text-slate-800 mb-1">Critères d&apos;ajustement</h2>
         <p className="text-sm text-slate-500 mb-4">
-          Chaque critère multiplie la fourchette de base. 1.10 = +10 %, 0.90 = −10 %. Désactiver un critère annule son effet sans le retirer du site.
+          Chaque critère décale le prix estimé (moyenne des deux valeurs). 1.10 = plutôt +10 %, 0.90 = plutôt −10 %. Désactiver un critère annule son effet sans le retirer du site.
         </p>
         <div className="space-y-3">
           {factors.map((f) => (

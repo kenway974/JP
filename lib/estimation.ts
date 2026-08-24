@@ -31,11 +31,18 @@ export interface EstimationResult {
   breakdown: EstimationFactorImpact[]
 }
 
+// Marge d'incertitude autour du prix central : large tant qu'on ne sait presque rien du
+// chantier, resserrée à mesure que le client coche des particularités concrètes. Ça évite
+// qu'une fourchette s'élargisse indéfiniment au fil du formulaire (ce qu'un simple produit
+// de multiplicateurs min/max ferait), et donne un prix affiché plus utile au client.
+const BASE_UNCERTAINTY = 0.24
+const UNCERTAINTY_STEP_PER_CRITERION = 0.018
+const MIN_UNCERTAINTY = 0.08
+
 export async function calculateEstimation(input: EstimationInput): Promise<EstimationResult> {
   const [base, overrides] = await Promise.all([getBasePrice(input.serviceType), getFactorOverrides()])
 
-  let minFactor = 1
-  let maxFactor = 1
+  let pointFactor = 1
   const details: string[] = []
   const lowFactors: string[] = []
   const highFactors: string[] = []
@@ -53,9 +60,9 @@ export async function calculateEstimation(input: EstimationInput): Promise<Estim
     const disabled = override?.active === false
     const minMult = disabled ? 1 : override?.minMultiplier ?? defaultMin
     const maxMult = disabled ? 1 : override?.maxMultiplier ?? defaultMax
-    minFactor *= minMult
-    maxFactor *= maxMult
-    const impactPercent = Math.round(((minMult + maxMult) / 2 - 1) * 100)
+    const mult = (minMult + maxMult) / 2
+    pointFactor *= mult
+    const impactPercent = Math.round((mult - 1) * 100)
     breakdown.push({
       key: breakdownKey,
       label,
@@ -195,9 +202,15 @@ export async function calculateEstimation(input: EstimationInput): Promise<Estim
     highFactors.push('Matériaux haut de gamme ou spécificités découvertes lors de la visite')
   }
 
+  const center = ((base.min + base.max) / 2) * pointFactor
+  const uncertainty = Math.max(
+    MIN_UNCERTAINTY,
+    BASE_UNCERTAINTY - input.specificities.length * UNCERTAINTY_STEP_PER_CRITERION
+  )
+
   return {
-    min: Math.round(base.min * minFactor / 50) * 50,
-    max: Math.round(base.max * maxFactor / 50) * 50,
+    min: Math.round((center * (1 - uncertainty)) / 50) * 50,
+    max: Math.round((center * (1 + uncertainty)) / 50) * 50,
     label: base.label,
     details,
     lowFactors,
