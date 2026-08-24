@@ -83,15 +83,21 @@ le plus rapide à mettre en place sans rien installer localement.
 
 1. Créer un projet sur [supabase.com](https://supabase.com/dashboard)
    (ou m'en créer un si tu m'as connecté à ton compte Supabase).
-2. Dans le dashboard du projet → **Project Settings → Database → Connect** :
-   copier la chaîne **Transaction pooler** (port `6543`, adaptée à une app
-   serverless/Next.js) — c'est celle qu'on met dans `DATABASE_URL`.
-3. Remplacer `[YOUR-PASSWORD]` dans la chaîne par le mot de passe de la base
-   (visible une seule fois à la création du projet ; sinon le régénérer
-   depuis **Database → Reset database password**).
-4. Coller le résultat dans `.env` :
+2. Sur la page du projet, taper le bouton **"Connect"** (en haut, à côté du
+   nom du projet — pas dans Project Settings, ça a été déplacé) → onglet
+   **ORMs → Prisma**. Supabase affiche directement les deux variables à
+   copier dans `.env.local` :
+   - `DATABASE_URL` (via le pooler, port `6543`) — utilisée à l'exécution.
+   - `DIRECT_URL` (connexion directe, port `5432`) — utilisée uniquement par
+     Prisma pour les migrations (`db:push` / `db:migrate`).
+3. Remplacer `[YOUR-PASSWORD]` dans les deux chaînes par le mot de passe de
+   la base (visible une seule fois à la création du projet ; sinon le
+   régénérer via le lien **"Reset database password"** dans cette même
+   fenêtre "Connect").
+4. Coller les deux dans `.env` :
    ```
    DATABASE_URL="postgresql://postgres.xxxxxxxx:MOT_DE_PASSE@aws-0-eu-west-3.pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DIRECT_URL="postgresql://postgres.xxxxxxxx:MOT_DE_PASSE@aws-0-eu-west-3.pooler.supabase.com:5432/postgres"
    ```
 5. Créer les tables : `npm run db:push` (utilise `prisma/schema.prisma` — pas
    besoin d'écrire du SQL à la main).
