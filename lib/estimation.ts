@@ -111,6 +111,26 @@ export function calculateEstimation(input: EstimationInput): EstimationResult {
     details.push('Multi-pièces')
     highFactors.push('Installation multi-pièces — plusieurs unités intérieures')
   }
+  if (input.specificities.includes('TRAVAUX_SOUS_TENSION')) {
+    minFactor *= 1.1; maxFactor *= 1.15
+    details.push('Travaux sous tension')
+    highFactors.push('Travaux sous tension — précautions de sécurité et coordination de coupure')
+  }
+  if (input.specificities.includes('EXISTANT_A_REMPLACER')) {
+    minFactor *= 1.05; maxFactor *= 1.1
+    details.push('Dépose d\'un équipement existant')
+    highFactors.push('Équipement existant à déposer — dépose et évacuation de l\'ancien matériel incluses')
+  }
+  if (input.specificities.includes('ETAGE_SANS_ASCENSEUR')) {
+    minFactor *= 1.1; maxFactor *= 1.15
+    details.push('Étage sans ascenseur')
+    highFactors.push('Étage sans ascenseur — manutention du matériel plus longue')
+  }
+  if (input.specificities.includes('MISE_AUX_NORMES')) {
+    minFactor *= 1.1; maxFactor *= 1.2
+    details.push('Mise aux normes nécessaire')
+    highFactors.push('Mise aux normes nécessaire — contrôles et adaptations réglementaires supplémentaires')
+  }
 
   if (lowFactors.length === 0) {
     lowFactors.push('Chantier standard sans complication particulière')

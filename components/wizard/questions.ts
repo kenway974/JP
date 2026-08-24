@@ -89,6 +89,8 @@ export const WIZARD_STEPS: WizardStep[] = [
       { value: 'MULTI_PIECES', label: 'Plusieurs pièces', icon: '🚪' },
       { value: 'TRAVAUX_SOUS_TENSION', label: 'Travaux sous tension', icon: '⚡' },
       { value: 'EXISTANT_A_REMPLACER', label: 'Équipement existant à remplacer', icon: '🔄' },
+      { value: 'ETAGE_SANS_ASCENSEUR', label: 'Étage sans ascenseur', icon: '🪜' },
+      { value: 'MISE_AUX_NORMES', label: 'Mise aux normes nécessaire', icon: '📋' },
     ],
   },
   {
