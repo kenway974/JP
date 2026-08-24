@@ -27,6 +27,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       surface: lead.surface,
       email: lead.email ?? null,
       details: estimation.details,
+      lowFactors: estimation.lowFactors,
+      highFactors: estimation.highFactors,
     })
   } catch (err) {
     console.error('GET /api/leads/[id]', err)

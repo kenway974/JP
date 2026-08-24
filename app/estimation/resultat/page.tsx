@@ -2,7 +2,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowRight, Mail, Loader2, AlertTriangle, CheckCircle, Phone, Calendar } from 'lucide-react'
+import { ArrowRight, Mail, Loader2, AlertTriangle, CheckCircle, Phone, Calendar, TrendingDown, TrendingUp } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
 interface LeadData {
@@ -12,6 +12,8 @@ interface LeadData {
   firstName: string
   email: string | null
   details: string[]
+  lowFactors: string[]
+  highFactors: string[]
 }
 
 function ResultatContent() {
@@ -99,18 +101,35 @@ function ResultatContent() {
             </div>
           </div>
 
-          {data.details?.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-slate-700 mb-2">Facteurs pris en compte :</p>
-              <ul className="space-y-1">
-                {data.details.map((d, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600">
-                    <CheckCircle className="h-3.5 w-3.5 text-brand-orange" /> {d}
-                  </li>
-                ))}
-              </ul>
+          <div>
+            <p className="text-sm font-medium text-slate-700 mb-3">Pourquoi cette fourchette de prix ?</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {data.lowFactors?.length > 0 && (
+                <div className="bg-emerald-50 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                    <TrendingDown className="h-3.5 w-3.5" /> Fait baisser le prix
+                  </p>
+                  <ul className="space-y-1.5">
+                    {data.lowFactors.map((f, i) => (
+                      <li key={i} className="text-sm text-emerald-900 leading-snug">• {f}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {data.highFactors?.length > 0 && (
+                <div className="bg-orange-50 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5" /> Fait monter le prix
+                  </p>
+                  <ul className="space-y-1.5">
+                    {data.highFactors.map((f, i) => (
+                      <li key={i} className="text-sm text-orange-900 leading-snug">• {f}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Envoi PDF */}
