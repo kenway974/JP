@@ -172,10 +172,10 @@ export async function calculateEstimation(input: EstimationInput): Promise<Estim
     details.push('Intervention le week-end')
     highFactors.push('Intervention le week-end — majoration hors jours ouvrés')
   }
-  if (input.specificities.includes('CONDUITS_A_CREER')) {
-    applyFactor('CONDUITS_A_CREER', 'Création de gaines nécessaire', 1.15, 1.25, 'CONDUITS_A_CREER')
-    details.push('Création de gaines ou conduits')
-    highFactors.push('Gaines ou conduits à créer — pas de passage existant à réutiliser')
+  if (input.specificities.includes('PREMIERE_INSTALLATION')) {
+    applyFactor('PREMIERE_INSTALLATION', 'Première installation', 1.15, 1.25, 'PREMIERE_INSTALLATION')
+    details.push('Première installation, aucun système existant')
+    highFactors.push('Première installation — gaines et conduits à créer, pas de passage existant à réutiliser')
   }
   if (input.specificities.includes('DIAGNOSTIC_AMIANTE')) {
     applyFactor('DIAGNOSTIC_AMIANTE', 'Diagnostic amiante requis', 1.1, 1.15, 'DIAGNOSTIC_AMIANTE')

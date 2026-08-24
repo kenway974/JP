@@ -35,7 +35,7 @@ export const FACTOR_DEFAULTS: Record<string, { minMultiplier: number; maxMultipl
   MISE_AUX_NORMES: { minMultiplier: 1.1, maxMultiplier: 1.2 },
   STATIONNEMENT_ELOIGNE: { minMultiplier: 1.05, maxMultiplier: 1.08 },
   INTERVENTION_WEEKEND: { minMultiplier: 1.1, maxMultiplier: 1.15 },
-  CONDUITS_A_CREER: { minMultiplier: 1.15, maxMultiplier: 1.25 },
+  PREMIERE_INSTALLATION: { minMultiplier: 1.15, maxMultiplier: 1.25 },
   DIAGNOSTIC_AMIANTE: { minMultiplier: 1.1, maxMultiplier: 1.15 },
   DEJA_CLIENT: { minMultiplier: 0.92, maxMultiplier: 0.95 },
 }
@@ -57,7 +57,7 @@ export const FACTOR_LABELS: Record<string, string> = {
   MISE_AUX_NORMES: 'Mise aux normes nécessaire',
   STATIONNEMENT_ELOIGNE: 'Stationnement / accès véhicule éloigné',
   INTERVENTION_WEEKEND: 'Intervention le week-end',
-  CONDUITS_A_CREER: 'Création de gaines ou conduits nécessaire',
+  PREMIERE_INSTALLATION: 'Première installation (aucun système existant)',
   DIAGNOSTIC_AMIANTE: 'Diagnostic amiante requis (bâti avant 1997)',
   DEJA_CLIENT: 'Client déjà sous contrat d\'entretien',
 }
