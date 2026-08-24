@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCalendarAdapter } from '@/lib/calendar'
 import { getCRMAdapter } from '@/lib/crm'
 import { prisma } from '@/lib/prisma'
+import { COMPANY_LOCATION } from '@/lib/config'
 import { z } from 'zod'
 
 const BookSchema = z.object({
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
           firstName: contactData.firstName,
           phone: contactData.phone,
           email: contactData.email,
-          city: 'Île-de-France',
+          city: COMPANY_LOCATION,
           serviceType: 'CHAUFFAGE',
           housingType: 'APPARTEMENT',
           urgency: 'PLANIFIE',

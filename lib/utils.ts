@@ -25,5 +25,5 @@ export function slugify(text: string): string {
 }
 
 export function generateProspectId(): string {
-  return `JPCLIM-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
+  return `LEAD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
 }
