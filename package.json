@@ -25,10 +25,12 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.2",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.11.11",
+    "jose": "^6.2.10",
     "lucide-react": "^0.460.0",
     "next": "^15.0.3",
     "nodemailer": "^6.9.16",
@@ -43,6 +45,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.17.6",

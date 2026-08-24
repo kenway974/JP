@@ -14,7 +14,7 @@ dupliqué rapidement d'un client à l'autre.
   un calendrier externe.
 - **Page d'avis clients** avec formulaire de dépôt d'avis.
 - **Blog** pour le SEO (articles gérés en base, modifiables depuis l'admin).
-- **Back-office `/admin`** : leads, créneaux, blog, avis.
+- **Back-office `/admin`** protégé par authentification : leads, créneaux, blog, avis.
 - **CRM agnostique** : adaptateurs interchangeables (mock / HubSpot /
   Pipedrive — Salesforce à implémenter sur le même modèle).
 - **Calendrier agnostique** : interne / Google Calendar / Calendly
@@ -38,16 +38,20 @@ dupliqué rapidement d'un client à l'autre.
 │  ├─ avis/                 # avis clients
 │  ├─ blog/                  # articles
 │  ├─ contact/
-│  ├─ admin/                 # back-office (leads, créneaux, blog, avis)
+│  ├─ admin/(dashboard)/     # back-office (leads, créneaux, blog, avis) — protégé
+│  ├─ admin/login/            # page de connexion admin (publique)
+│  ├─ api/auth/               # login / logout admin
 │  └─ api/                   # routes API (leads, booking, reviews, crm, email…)
 ├─ components/              # composants UI (layout, wizard, avis, blog, trust, seo)
 ├─ lib/
 │  ├─ config.ts              # toute l'identité de l'entreprise (env-driven)
+│  ├─ auth.ts                # session admin (JWT signé, cookie httpOnly)
 │  ├─ estimation.ts          # logique de calcul des fourchettes de prix
 │  ├─ crm/adapters/          # mock, hubspot, pipedrive
 │  ├─ calendar/adapters/     # internal, google, calendly
 │  ├─ email/                 # envoi SMTP
 │  └─ pdf/                   # génération du devis PDF
+├─ middleware.ts             # protège /admin/* et /api/admin/*
 ├─ prisma/                  # schéma + seed de démonstration
 ├─ Dockerfile · railway.json · .env.example
 ```
@@ -71,12 +75,41 @@ Renseigner au minimum :
 Le reste (couleurs de marque, services proposés, FAQ, textes de la landing)
 se personnalise dans `lib/config.ts` et `app/page.tsx`.
 
+## Base de données
+Le projet a besoin d'un Postgres accessible via `DATABASE_URL`. N'importe
+quel Postgres managé fonctionne (Supabase, Neon, Railway Postgres, RDS…) ;
+le guide ci-dessous utilise **Supabase** (gratuit pour ce volume) car c'est
+le plus rapide à mettre en place sans rien installer localement.
+
+1. Créer un projet sur [supabase.com](https://supabase.com/dashboard)
+   (ou m'en créer un si tu m'as connecté à ton compte Supabase).
+2. Dans le dashboard du projet → **Project Settings → Database → Connect** :
+   copier la chaîne **Transaction pooler** (port `6543`, adaptée à une app
+   serverless/Next.js) — c'est celle qu'on met dans `DATABASE_URL`.
+3. Remplacer `[YOUR-PASSWORD]` dans la chaîne par le mot de passe de la base
+   (visible une seule fois à la création du projet ; sinon le régénérer
+   depuis **Database → Reset database password**).
+4. Coller le résultat dans `.env` :
+   ```
+   DATABASE_URL="postgresql://postgres.xxxxxxxx:MOT_DE_PASSE@aws-0-eu-west-3.pooler.supabase.com:6543/postgres?pgbouncer=true"
+   ```
+5. Créer les tables : `npm run db:push` (utilise `prisma/schema.prisma` — pas
+   besoin d'écrire du SQL à la main).
+6. (Optionnel) Charger des données de démo : `npm run db:seed`.
+
+> Le schéma applicatif (`Lead`, `Booking`, `Review`, `BlogPost`…) est géré
+> uniquement par Prisma. Les fonctionnalités Supabase spécifiques (client
+> JS, Row Level Security, Auth Supabase) ne sont **pas utilisées** par ce
+> template — la base sert de simple Postgres derrière Prisma. Si tu ajoutes
+> plus tard le SDK `@supabase/supabase-js` côté client, pense à activer le
+> RLS sur les tables avant d'exposer la clé anonyme.
+
 ## Démarrage local
-Pré-requis : Node ≥ 20, PostgreSQL.
+Pré-requis : Node ≥ 20 et une base Postgres (voir ci-dessus).
 
 ```bash
 npm install
-cp .env.example .env        # renseigner DATABASE_URL + SMTP_URL au minimum
+cp .env.example .env        # renseigner DATABASE_URL, SMTP_URL, AUTH_SECRET, ADMIN_*
 npm run db:push             # crée le schéma en base
 npm run db:seed             # données de démonstration (créneaux, avis, blog)
 npm run dev                 # http://localhost:3000
@@ -110,12 +143,39 @@ analytics.
 Render, Fly.io (Docker identique), Vercel (build Next.js natif), ou tout
 hôte Node (`npm install && npm run build && npm start`).
 
+## Authentification admin
+`/admin/*` et `/api/admin/*` sont protégés par `middleware.ts` : toute
+requête sans session valide est redirigée vers `/admin/login` (ou reçoit un
+`401` pour les routes API). La session est un JWT signé (HS256, `jose`),
+stocké dans un cookie `httpOnly` + `secure` en production, valable 7 jours.
+
+Identifiants configurés via `.env` (un seul compte admin, volontairement
+simple — pas de table `User`) :
+- `ADMIN_EMAIL` : l'email de connexion.
+- `ADMIN_PASSWORD_HASH` : un **hash bcrypt** du mot de passe (jamais le mot
+  de passe en clair).
+- `AUTH_SECRET` : clé de signature des sessions.
+
+`.env.example` contient un **exemple fonctionnel prêt à tester** :
+- Email : `admin@votre-domaine.fr`
+- Mot de passe : `CvcDemo2026!`
+
+Pour générer tes propres identifiants avant de livrer à un client :
+```bash
+# 1. Un secret de session unique par déploiement
+openssl rand -base64 32
+
+# 2. Le hash du mot de passe choisi
+node -e "console.log(require('bcryptjs').hashSync('ton-mot-de-passe', 10))"
+```
+Mettre les résultats dans `AUTH_SECRET` et `ADMIN_PASSWORD_HASH` (variables
+d'environnement de production, jamais commit ces valeurs réelles dans `.env`
+versionné).
+
 ## Sécurité — points à traiter avant mise en production
-- **`/admin` n'est actuellement protégé par aucune authentification.** C'est
-  la limite la plus importante de ce template : avant de le livrer à un
-  client, ajouter une authentification (ex. NextAuth, ou un simple gate par
-  mot de passe via middleware Next.js) devant toutes les routes `/admin` et
-  `/api/admin/*`.
+- Rotation des identifiants admin par défaut (voir ci-dessus) avant toute
+  livraison client — `CvcDemo2026!` est un exemple, pas un mot de passe à
+  garder.
 - Validation systématique des entrées (Zod) côté serveur sur les formulaires
   publics.
 - En-têtes de sécurité HTTP (`X-Content-Type-Options`, `X-Frame-Options`,

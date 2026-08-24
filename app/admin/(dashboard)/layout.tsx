@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { LayoutDashboard, Users, Calendar, Star, FileText, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Star, FileText, ArrowLeft } from 'lucide-react'
 import { COMPANY_SHORT_NAME } from '@/lib/config'
+import { LogoutButton } from '@/components/layout/LogoutButton'
 
 export const metadata: Metadata = {
   title: `Administration | ${COMPANY_SHORT_NAME}`,
@@ -36,11 +37,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           ))}
         </nav>
-        <div className="p-3">
-          <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white text-sm">
-            <LogOut className="h-4 w-4" />
+        <div className="p-3 space-y-1 border-t border-white/10">
+          <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 text-sm transition-colors">
+            <ArrowLeft className="h-4 w-4" />
             Retour au site
           </Link>
+          <LogoutButton />
         </div>
       </aside>
       <main className="flex-1 p-8 overflow-auto">{children}</main>
