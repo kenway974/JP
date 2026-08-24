@@ -1,32 +1,28 @@
-# Build + run du backend (sert aussi le widget compilé). Cible Railway.
-FROM node:20-alpine
+# Build + run de l'app Next.js. Cible Railway (ou tout hébergeur Docker).
+FROM node:20-alpine AS base
+
+FROM base AS deps
 WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
 
-# Chromium + dépendances pour la génération de PDF (puppeteer-core).
-# On utilise le Chromium fourni par Alpine pour éviter le téléchargement
-# automatique de puppeteer (~170 MB) — on lui indique l'exécutable via env.
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont \
-    font-noto-emoji
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-
-# 1) Manifests d'abord (cache des dépendances)
-COPY package.json ./
-COPY packages/server/package.json packages/server/package.json
-COPY packages/widget/package.json packages/widget/package.json
-RUN npm install
-
-# 2) Code + build (widget puis serveur)
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
+FROM base AS runner
+WORKDIR /app
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
-EXPOSE 8080
-CMD ["node", "packages/server/dist/index.js"]
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/next.config.ts ./next.config.ts
+
+EXPOSE 3000
+CMD ["npm", "start"]

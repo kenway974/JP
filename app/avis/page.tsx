@@ -3,10 +3,11 @@ import { prisma } from '@/lib/prisma'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { ReviewForm } from '@/components/reviews/ReviewForm'
 import { Star } from 'lucide-react'
+import { COMPANY_NAME, COMPANY_LOCATION } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Avis clients — JP Clim Chauffagiste Île-de-France',
-  description: 'Découvrez les avis de nos clients satisfaits en Île-de-France. Installation chaudière, climatisation, VMC, plomberie. Déposez votre avis.',
+  title: `Avis clients — ${COMPANY_NAME}`,
+  description: `Découvrez les avis de nos clients satisfaits en ${COMPANY_LOCATION}. Installation chaudière, climatisation, VMC, plomberie. Déposez votre avis.`,
 }
 
 async function getReviews() {
@@ -54,7 +55,7 @@ export default async function AvisPage() {
           {/* Formulaire */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-fit">
             <h2 className="font-heading font-bold text-brand-navy text-xl mb-4">Déposer mon avis</h2>
-            <p className="text-sm text-slate-500 mb-5">Vous avez fait appel à JP Clim ? Partagez votre expérience.</p>
+            <p className="text-sm text-slate-500 mb-5">Vous avez fait appel à {COMPANY_NAME} ? Partagez votre expérience.</p>
             <ReviewForm />
           </div>
         </div>

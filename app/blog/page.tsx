@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { BlogCard } from '@/components/blog/BlogCard'
+import { COMPANY_SHORT_NAME, COMPANY_LOCATION } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: 'Blog & Conseils — Chauffage, Climatisation, VMC | JP Clim',
-  description: 'Guides pratiques et conseils d\'experts en chauffage, climatisation et VMC pour les Franciliens. Entretien, économies d\'énergie, choix des équipements.',
+  title: `Blog & Conseils — Chauffage, Climatisation, VMC | ${COMPANY_SHORT_NAME}`,
+  description: `Guides pratiques et conseils d'experts en chauffage, climatisation et VMC en ${COMPANY_LOCATION}. Entretien, économies d'énergie, choix des équipements.`,
 }
 
 async function getPosts() {

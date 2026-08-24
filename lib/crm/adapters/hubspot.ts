@@ -38,10 +38,10 @@ export class HubSpotCRMAdapter implements CRMAdapter {
         phone: data.phone,
         city: data.city,
         hs_lead_status: 'NEW',
-        jpclim_service: SERVICE_LABELS[data.serviceType] || data.serviceType,
-        jpclim_estimate_min: data.estimateMin,
-        jpclim_estimate_max: data.estimateMax,
-        jpclim_prospect_id: data.prospectId,
+        lead_service: SERVICE_LABELS[data.serviceType] || data.serviceType,
+        lead_estimate_min: data.estimateMin,
+        lead_estimate_max: data.estimateMax,
+        lead_prospect_id: data.prospectId,
       },
     })
     return contact.id
@@ -50,7 +50,7 @@ export class HubSpotCRMAdapter implements CRMAdapter {
   async updateProspect(prospectId: string, update: Partial<ProspectData>): Promise<void> {
     // Chercher le contact par prospectId
     const search = await this.request('/crm/v3/objects/contacts/search', 'POST', {
-      filterGroups: [{ filters: [{ propertyName: 'jpclim_prospect_id', operator: 'EQ', value: prospectId }] }],
+      filterGroups: [{ filters: [{ propertyName: 'lead_prospect_id', operator: 'EQ', value: prospectId }] }],
     })
     if (!search.results?.length) return
 
@@ -64,14 +64,14 @@ export class HubSpotCRMAdapter implements CRMAdapter {
 
   async trackEvent(prospectId: string, event: CRMEvent): Promise<void> {
     const search = await this.request('/crm/v3/objects/contacts/search', 'POST', {
-      filterGroups: [{ filters: [{ propertyName: 'jpclim_prospect_id', operator: 'EQ', value: prospectId }] }],
+      filterGroups: [{ filters: [{ propertyName: 'lead_prospect_id', operator: 'EQ', value: prospectId }] }],
     })
     if (!search.results?.length) return
 
     const contactId = search.results[0].id
     await this.request('/crm/v3/objects/notes', 'POST', {
       properties: {
-        hs_note_body: `[JP Clim Site] ${event.type} - ${JSON.stringify(event.metadata || {})}`,
+        hs_note_body: `[Site web] ${event.type} - ${JSON.stringify(event.metadata || {})}`,
         hs_timestamp: (event.timestamp || new Date()).toISOString(),
       },
       associations: [{ to: { id: contactId }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: 202 }] }],

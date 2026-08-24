@@ -1,5 +1,6 @@
 import type { CalendarAdapter, TimeSlot, Booking } from '../types'
 import { addHours, format } from 'date-fns'
+import { COMPANY_SHORT_NAME } from '@/lib/config'
 
 export class GoogleCalendarAdapter implements CalendarAdapter {
   private readonly calendarId = process.env.GOOGLE_CALENDAR_ID!
@@ -80,7 +81,7 @@ export class GoogleCalendarAdapter implements CalendarAdapter {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          summary: `Visite JP Clim - ${data.firstName}`,
+          summary: `Visite ${COMPANY_SHORT_NAME} - ${data.firstName}`,
           description: `Prospect: ${prospectId}\nTél: ${data.phone}\n${data.notes || ''}`,
           start: { dateTime: start.toISOString() },
           end: { dateTime: end.toISOString() },

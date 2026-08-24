@@ -31,9 +31,9 @@ export class PipedriveCRMAdapter implements CRMAdapter {
       status: 'open',
     })
 
-    // Note avec l'ID JP Clim
+    // Note avec l'ID prospect
     await this.request('/notes', 'POST', {
-      content: `JP Clim Prospect ID: ${data.prospectId}\nService: ${data.serviceType}\nEstimation: ${data.estimateMin}-${data.estimateMax}€`,
+      content: `Prospect ID: ${data.prospectId}\nService: ${data.serviceType}\nEstimation: ${data.estimateMin}-${data.estimateMax}€`,
       deal_id: deal.id,
     })
 

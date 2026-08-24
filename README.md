@@ -1,124 +1,136 @@
-# Estimo — Widget d'estimation immobilière multi-agences
+# Template — Funnel d'acquisition pour entreprises CVC
 
-Solution clé en main, revendable à des agences immobilières : un **formulaire
-d'estimation embarquable** sur n'importe quel site + un **backend Node.js** qui
-calcule l'estimation, l'**envoie par email au prospect avec un PDF brandé en pièce jointe**,
-et **pousse le lead** dans l'outil de mailing/CRM de l'agence (Brevo, Mailchimp,
-SendGrid, Mailgun, SMTP).
+Site vitrine + tunnel d'acquisition clé en main pour une entreprise de
+**Chauffage / Ventilation / Climatisation (CVC)** : landing page, wizard
+d'estimation de devis en ligne, prise de rendez-vous, page d'avis clients,
+blog, et back-office admin. **100 % configurable via variables
+d'environnement** — aucun nom d'entreprise en dur dans le code — pour être
+dupliqué rapidement d'un client à l'autre.
 
-- **Multi-agences** : un seul backend pour toutes les agences (1 fichier de config par agence, pas de base de données).
-- **Intégrable partout** : balise `<script>` (Shadow DOM, zéro conflit CSS/JS) ou `<iframe>`.
-- **Coefficients d'estimation 100 % configurables** sans toucher au code.
-- **Calibration automatique** des prix à partir des données publiques **DVF** (Demandes de Valeurs Foncières).
-- **PDF d'estimation brandé** joint au mail prospect (PDFKit, zéro asset externe).
-- **Déploiement Railway** en un seul service.
+- **Wizard d'estimation** : le prospect répond à quelques questions (type de
+  bien, service, surface…) et reçoit une **fourchette de prix indicative**
+  + un **devis PDF** par email (généré avec PDFKit, sans dépendance externe).
+- **Prise de RDV** en ligne, créneaux gérés en interne ou synchronisés avec
+  un calendrier externe.
+- **Page d'avis clients** avec formulaire de dépôt d'avis.
+- **Blog** pour le SEO (articles gérés en base, modifiables depuis l'admin).
+- **Back-office `/admin`** : leads, créneaux, blog, avis.
+- **CRM agnostique** : adaptateurs interchangeables (mock / HubSpot /
+  Pipedrive — Salesforce à implémenter sur le même modèle).
+- **Calendrier agnostique** : interne / Google Calendar / Calendly
+  (Outlook à implémenter sur le même modèle).
+- **Email transactionnel** via SMTP (Brevo, Gmail, ou tout fournisseur SMTP).
 
 ## Stack
-- **Backend** : Node 20 + Fastify 5 + TypeScript, validation **Zod**, logs **pino**, `helmet` + CORS allowlist + rate-limit.
-- **Widget** : TypeScript vanilla, build **Vite** (bundle IIFE autonome), rendu en Shadow DOM.
-- **Email / CRM** : architecture *provider* (adaptateurs interchangeables).
-- **PDF** : PDFKit (généré côté serveur à chaque estimation).
+- **Next.js 15** (App Router) + TypeScript + Tailwind CSS
+- **Prisma** + PostgreSQL (leads, créneaux, avis, articles de blog)
+- **PDFKit** pour la génération du devis PDF côté serveur
+- **Nodemailer** (SMTP) pour l'envoi d'email
+- **Zod** + **react-hook-form** pour la validation des formulaires
 
 ## Structure
 ```
-estimo/
-├─ packages/
-│  ├─ server/      # API Fastify (estimation, email + PDF, CRM, multi-tenant)
-│  └─ widget/      # widget embarquable (Vite) + page de démo
-├─ tenants/        # 1 config .json par agence (sans secrets)
-├─ scripts/        # outils : calibration DVF (data.gouv.fr)
-├─ docs/
-│  ├─ INTEGRATION.md         # intégration côté agence (script + iframe)
-│  ├─ ADDING-A-TENANT.md     # onboarding d'une nouvelle agence
-│  ├─ MENTIONS-LEGALES.md    # mentions légales (template à personnaliser)
-│  ├─ CONFIDENTIALITE.md     # politique de confidentialité RGPD
-│  └─ CGV.md                 # CGV B2B (template à faire valider)
+├─ app/                    # pages Next.js (App Router)
+│  ├─ page.tsx              # landing page
+│  ├─ estimation/           # wizard d'estimation + résultat + confirmation
+│  ├─ rendez-vous/          # prise de RDV
+│  ├─ rappel/                # demande de rappel
+│  ├─ avis/                 # avis clients
+│  ├─ blog/                  # articles
+│  ├─ contact/
+│  ├─ admin/                 # back-office (leads, créneaux, blog, avis)
+│  └─ api/                   # routes API (leads, booking, reviews, crm, email…)
+├─ components/              # composants UI (layout, wizard, avis, blog, trust, seo)
+├─ lib/
+│  ├─ config.ts              # toute l'identité de l'entreprise (env-driven)
+│  ├─ estimation.ts          # logique de calcul des fourchettes de prix
+│  ├─ crm/adapters/          # mock, hubspot, pipedrive
+│  ├─ calendar/adapters/     # internal, google, calendly
+│  ├─ email/                 # envoi SMTP
+│  └─ pdf/                   # génération du devis PDF
+├─ prisma/                  # schéma + seed de démonstration
 ├─ Dockerfile · railway.json · .env.example
 ```
 
-## Comment ça marche
-1. L'utilisateur remplit le formulaire (bien + coordonnées + consentement RGPD).
-2. Le widget envoie les données à `POST /api/estimate`.
-3. Le backend identifie l'agence (`tenantId` + contrôle de l'`Origin`), valide, **calcule** l'estimation à partir des coefficients de l'agence.
-4. Il **génère un PDF brandé** et l'envoie **par email au prospect** (mail HTML + PDF en pièce jointe).
-5. Il **pousse le lead** dans le CRM/mailing de l'agence (Brevo, Mailchimp, etc.) avec les attributs prêts pour la segmentation.
-6. Réponse JSON `{ estimate, emailSent }` → le widget affiche la fourchette.
+## Personnaliser pour un client
+Tout se joue dans `.env` — aucune modification de code nécessaire pour
+changer d'entreprise :
+
+```bash
+cp .env.example .env
+```
+
+Renseigner au minimum :
+- `NEXT_PUBLIC_COMPANY_NAME`, `NEXT_PUBLIC_COMPANY_SHORT_NAME`
+- `NEXT_PUBLIC_COMPANY_PHONE(_RAW)`, `NEXT_PUBLIC_COMPANY_EMAIL`
+- `NEXT_PUBLIC_COMPANY_LOCATION`, `NEXT_PUBLIC_COMPANY_SINCE`
+- `NEXT_PUBLIC_SITE_URL`
+- `DATABASE_URL` (PostgreSQL)
+- `SMTP_URL`, `EMAIL_FROM`, `EMAIL_REPLY_TO`
+
+Le reste (couleurs de marque, services proposés, FAQ, textes de la landing)
+se personnalise dans `lib/config.ts` et `app/page.tsx`.
 
 ## Démarrage local
-Pré-requis : Node ≥ 20.
+Pré-requis : Node ≥ 20, PostgreSQL.
 
 ```bash
 npm install
-cp .env.example .env        # renseigner au moins DEMO_MAIL_API_KEY ou DEMO_SMTP_URL
-npm run build:widget        # génère packages/widget/dist/widget.js
-npm run dev                 # API sur http://localhost:8080
+cp .env.example .env        # renseigner DATABASE_URL + SMTP_URL au minimum
+npm run db:push             # crée le schéma en base
+npm run db:seed             # données de démonstration (créneaux, avis, blog)
+npm run dev                 # http://localhost:3000
 ```
-Démo du widget : <http://localhost:8080/> (tenant `demo`, coeffs Réunion) ou
-<http://localhost:8080/?tenant=demo-idf> (tenant IDF calibré DVF).
-
-Dev du widget avec rechargement : `npm run dev:widget`.
 
 ### Scripts
-| Commande                | Effet                                                |
-|-------------------------|------------------------------------------------------|
-| `npm run dev`           | API en watch (tsx, charge `.env` du repo)            |
-| `npm run dev:widget`    | widget en watch (Vite)                               |
-| `npm run build`         | build widget + serveur                               |
-| `npm start`             | lance l'API compilée                                 |
-| `npm run typecheck`     | vérifie les types (serveur + widget)                 |
-| `npm run calibrate:dvf` | recalibre `tenants/demo-idf.json` depuis les données DVF |
+| Commande            | Effet                                      |
+|----------------------|---------------------------------------------|
+| `npm run dev`        | serveur de dev Next.js                      |
+| `npm run build`       | build de production                         |
+| `npm start`           | lance le build de production                |
+| `npm run lint`         | ESLint                                       |
+| `npm run db:push`      | applique le schéma Prisma à la base          |
+| `npm run db:migrate`   | applique les migrations Prisma (prod)        |
+| `npm run db:seed`      | jeu de données de démonstration              |
 
 ## Variables d'environnement
-Voir `.env.example`. Variables serveur (`PORT`, `LOG_LEVEL`, `TENANTS_DIR`,
-`RATE_LIMIT_MAX`…) + **secrets par agence** préfixés par l'id en MAJUSCULES
-(`DEMO_SMTP_URL`, `ACME_MAIL_API_KEY`, `ACME_CRM_API_KEY`…). Détail dans
-[`tenants/README.md`](./tenants/README.md).
+Voir `.env.example` pour la liste complète : identité de l'entreprise,
+base de données, email (SMTP), CRM (`CRM_PROVIDER=mock|hubspot|pipedrive`),
+calendrier (`CALENDAR_PROVIDER=internal|google|calendly`), avis Google,
+analytics.
 
-## Déploiement Railway
+## Déploiement
+### Railway (par défaut)
 1. Pousser le repo, puis sur Railway : **New Project → Deploy from GitHub**.
-2. Railway détecte le `Dockerfile` (cf. `railway.json`, healthcheck `/health`).
-3. Onglet **Variables** : ajouter `NODE_ENV=production` + les secrets de chaque agence.
-4. Déployer. Le widget est servi sur `https://<service>.up.railway.app/widget.js`.
+2. Railway détecte le `Dockerfile` (cf. `railway.json`).
+3. Onglet **Variables** : ajouter toutes les variables de `.env.example`.
+4. Déployer.
 
-> **Alternatives** : Render / Fly.io (Docker identique) ou tout hôte Node
-> (`npm install && npm run build && npm start`). Le `Dockerfile` est standard.
+### Alternatives
+Render, Fly.io (Docker identique), Vercel (build Next.js natif), ou tout
+hôte Node (`npm install && npm run build && npm start`).
 
-## Intégration côté agence
-Voir [`docs/INTEGRATION.md`](./docs/INTEGRATION.md) (script + iframe, WordPress, PrestaShop).
-Ajouter une agence : [`docs/ADDING-A-TENANT.md`](./docs/ADDING-A-TENANT.md).
-
-## Personnaliser le calcul
-Tout est dans le bloc `estimation` de `tenants/<id>.json` (prix au m², zones,
-types, état, équipements, fourchette).
-
-**Calibration automatique disponible** pour l'Île-de-France via :
-```bash
-npm run calibrate:dvf
-```
-→ télécharge ~30 MB de données DVF (8 départements × 3 ans), filtre les ventes
-mono-lot Appart/Maison, calcule la médiane prix/m² par code postal, et écrit
-`tenants/demo-idf.json` + un rapport `scripts/dvf-output/report.md`. Adaptable
-à n'importe quel département en éditant `DEPARTMENTS` dans le script.
-
-## Sécurité
-- Validation systématique des entrées (Zod), côté serveur.
-- CORS en allowlist (domaines déclarés par agence) + rate-limiting par IP.
-- En-têtes `helmet` (HSTS, noSniff, Referrer-Policy…). `frameguard`/CSP désactivés volontairement car le widget est embarqué sur des sites tiers.
-- Aucun secret en clair dans le code : tout passe par les variables d'environnement.
-- La clé publique du widget est visible côté navigateur **par conception** : le vrai garde-fou est la liste de domaines autorisés.
+## Sécurité — points à traiter avant mise en production
+- **`/admin` n'est actuellement protégé par aucune authentification.** C'est
+  la limite la plus importante de ce template : avant de le livrer à un
+  client, ajouter une authentification (ex. NextAuth, ou un simple gate par
+  mot de passe via middleware Next.js) devant toutes les routes `/admin` et
+  `/api/admin/*`.
+- Validation systématique des entrées (Zod) côté serveur sur les formulaires
+  publics.
+- En-têtes de sécurité HTTP (`X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy`) définis dans `next.config.ts`.
+- Aucun secret en clair dans le code : tout passe par les variables
+  d'environnement.
+- `lib/calendar/adapters/google.ts` : l'authentification OAuth2 service
+  account n'est pas terminée (`assertion: 'TODO_JWT_HERE'`) — à implémenter
+  si le calendrier Google est utilisé en production.
 
 ## Conformité légale
-Trois documents prêts à personnaliser dans `docs/` :
-- [Mentions légales](./docs/MENTIONS-LEGALES.md) (LCEN)
-- [Politique de confidentialité](./docs/CONFIDENTIALITE.md) (RGPD — Estimo agit en sous-traitant des agences)
-- [Conditions Générales de Vente B2B](./docs/CGV.md) (à faire relire par un avocat avant usage)
-
-## Dépannage
-- **Le widget ne s'affiche pas** : vérifier que `widget.js` est bien servi (`npm run build:widget`) et le sélecteur `data-target`.
-- **403 `origine_non_autorisee`** : ajouter le domaine du site dans `allowedDomains` du tenant.
-- **`MAIL_API_KEY (Brevo) manquant`** : ajouter `<TENANT>_MAIL_API_KEY` côté Railway (préfixe = id du tenant en MAJUSCULES, tirets → underscores).
-- **Brevo `Invalid phone number`** : le téléphone doit être normalisable en E.164 ; le code retombe automatiquement sur un champ texte `TELEPHONE` si la conversion échoue.
-- **Email non reçu** : vérifier les secrets du provider ; les erreurs d'envoi sont loguées (l'estimation reste renvoyée).
+Les pages `/mentions-legales` et `/confidentialite` sont déjà génériques et
+alimentées par `lib/config.ts`. Avant mise en ligne pour un client : y
+ajouter la raison sociale exacte, le SIRET, l'adresse du siège, et faire
+relire par un professionnel si nécessaire.
 
 ## Licence
 MIT — voir `LICENSE`.
