@@ -4,6 +4,8 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight, Mail, Loader2, AlertTriangle, CheckCircle, Phone, Calendar, TrendingDown, TrendingUp } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { EstimationGauge } from '@/components/estimation/EstimationGauge'
+import type { EstimationFactorImpact } from '@/lib/estimation'
 
 interface LeadData {
   estimateMin: number
@@ -14,6 +16,7 @@ interface LeadData {
   details: string[]
   lowFactors: string[]
   highFactors: string[]
+  breakdown: EstimationFactorImpact[]
 }
 
 function ResultatContent() {
@@ -130,6 +133,17 @@ function ResultatContent() {
               )}
             </div>
           </div>
+
+          {data.breakdown?.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-slate-100">
+              <p className="text-sm font-medium text-slate-700 mb-4">Détail de l&apos;impact par critère</p>
+              <div className="space-y-4">
+                {data.breakdown.map((f) => (
+                  <EstimationGauge key={f.key} label={f.label} impactPercent={f.impactPercent} direction={f.direction} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Envoi PDF */}
