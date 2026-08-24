@@ -2,13 +2,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, Star, FileText, ArrowLeft, Menu, X, SlidersHorizontal } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Star, FileText, ArrowLeft, Menu, X, SlidersHorizontal, Image as ImageIcon } from 'lucide-react'
 import { LogoutButton } from './LogoutButton'
 
 const NAV = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/leads', icon: Users, label: 'Leads' },
   { href: '/admin/slots', icon: Calendar, label: 'Créneaux' },
+  { href: '/admin/realisations', icon: ImageIcon, label: 'Réalisations' },
   { href: '/admin/blog', icon: FileText, label: 'Blog' },
   { href: '/admin/avis', icon: Star, label: 'Avis' },
   { href: '/admin/estimation', icon: SlidersHorizontal, label: 'Estimateur' },

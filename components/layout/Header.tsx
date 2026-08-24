@@ -8,6 +8,7 @@ import { COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/conf
 const NAV_LINKS = [
   { href: '/', label: 'Accueil' },
   { href: '/estimation', label: 'Estimation gratuite', highlight: true },
+  { href: '/realisations', label: 'Réalisations' },
   { href: '/blog', label: 'Conseils' },
   { href: '/avis', label: 'Avis clients' },
   { href: '/contact', label: 'Contact' },

@@ -64,6 +64,7 @@ export function Footer() {
                 { href: '/estimation', label: 'Estimation gratuite' },
                 { href: '/rendez-vous', label: 'Prendre rendez-vous' },
                 { href: '/rappel', label: 'Être rappelé(e)' },
+                { href: '/realisations', label: 'Nos réalisations' },
                 { href: '/blog', label: 'Blog & conseils' },
                 { href: '/avis', label: 'Avis clients' },
                 { href: '/contact', label: 'Contact' },
