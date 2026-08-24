@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CheckCircle, Calendar, Phone, ArrowRight, Star } from 'lucide-react'
-import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Devis envoyé — Prochaines étapes | ${COMPANY_NAME}`,
