@@ -132,7 +132,7 @@ export async function calculateEstimation(input: EstimationInput): Promise<Estim
     highFactors.push('Accès difficile — majoration temps de déplacement et manutention')
   }
   if (input.specificities.includes('COPROPRIETE')) {
-    applyFactor('COPROPRIETE', 'Copropriété / Syndic', 1, 1)
+    applyFactor('COPROPRIETE', 'Copropriété / Syndic', 1.05, 1.1, 'COPROPRIETE')
     details.push('Copropriété')
     highFactors.push('Copropriété — coordination syndic et contraintes horaires possibles')
   }
