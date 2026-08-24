@@ -91,6 +91,11 @@ export const WIZARD_STEPS: WizardStep[] = [
       { value: 'EXISTANT_A_REMPLACER', label: 'Équipement existant à remplacer', icon: '🔄' },
       { value: 'ETAGE_SANS_ASCENSEUR', label: 'Étage sans ascenseur', icon: '🪜' },
       { value: 'MISE_AUX_NORMES', label: 'Mise aux normes nécessaire', icon: '📋' },
+      { value: 'STATIONNEMENT_ELOIGNE', label: 'Stationnement éloigné', icon: '🚗' },
+      { value: 'INTERVENTION_WEEKEND', label: 'Intervention le week-end', icon: '📆' },
+      { value: 'CONDUITS_A_CREER', label: 'Création de gaines à prévoir', icon: '🕳️' },
+      { value: 'DIAGNOSTIC_AMIANTE', label: 'Bâti antérieur à 1997', icon: '☣️' },
+      { value: 'DEJA_CLIENT', label: 'Déjà client (contrat d\'entretien)', icon: '🤝' },
     ],
   },
   {

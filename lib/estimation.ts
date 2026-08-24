@@ -162,6 +162,32 @@ export async function calculateEstimation(input: EstimationInput): Promise<Estim
     highFactors.push('Mise aux normes nécessaire — contrôles et adaptations réglementaires supplémentaires')
   }
 
+  if (input.specificities.includes('STATIONNEMENT_ELOIGNE')) {
+    applyFactor('STATIONNEMENT_ELOIGNE', 'Stationnement éloigné', 1.05, 1.08, 'STATIONNEMENT_ELOIGNE')
+    details.push('Stationnement éloigné')
+    highFactors.push('Stationnement éloigné — temps de portage du matériel supplémentaire')
+  }
+  if (input.specificities.includes('INTERVENTION_WEEKEND')) {
+    applyFactor('INTERVENTION_WEEKEND', 'Intervention le week-end', 1.1, 1.15, 'INTERVENTION_WEEKEND')
+    details.push('Intervention le week-end')
+    highFactors.push('Intervention le week-end — majoration hors jours ouvrés')
+  }
+  if (input.specificities.includes('CONDUITS_A_CREER')) {
+    applyFactor('CONDUITS_A_CREER', 'Création de gaines nécessaire', 1.15, 1.25, 'CONDUITS_A_CREER')
+    details.push('Création de gaines ou conduits')
+    highFactors.push('Gaines ou conduits à créer — pas de passage existant à réutiliser')
+  }
+  if (input.specificities.includes('DIAGNOSTIC_AMIANTE')) {
+    applyFactor('DIAGNOSTIC_AMIANTE', 'Diagnostic amiante requis', 1.1, 1.15, 'DIAGNOSTIC_AMIANTE')
+    details.push('Diagnostic amiante requis')
+    highFactors.push('Bâti antérieur à 1997 — diagnostic amiante préalable obligatoire')
+  }
+  if (input.specificities.includes('DEJA_CLIENT')) {
+    applyFactor('DEJA_CLIENT', 'Client sous contrat d\'entretien', 0.92, 0.95, 'DEJA_CLIENT')
+    details.push('Client sous contrat d\'entretien')
+    lowFactors.push('Client déjà sous contrat d\'entretien — tarif préférentiel')
+  }
+
   if (lowFactors.length === 0) {
     lowFactors.push('Chantier standard sans complication particulière')
   }
