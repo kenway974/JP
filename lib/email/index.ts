@@ -204,3 +204,20 @@ export async function sendContactForm(data: {
     `,
   })
 }
+
+export async function sendOfferGuide(data: { to: string; offer: { title: string; items: string[]; cta: { label: string; href: string } } }) {
+  const ctaUrl = `${SITE_URL}${data.offer.cta.href}`
+  return getTransporter().sendMail({
+    from: FROM,
+    replyTo: REPLY_TO,
+    to: data.to,
+    subject: data.offer.title,
+    html: `
+      <h2 style="color:#1a2744">${data.offer.title}</h2>
+      <ul>${data.offer.items.map((i) => `<li style="margin-bottom:8px">${i}</li>`).join('')}</ul>
+      <p><a href="${ctaUrl}" style="color:#f97316;font-weight:bold">${data.offer.cta.label} →</a></p>
+      <p style="color:#64748b;font-size:12px">${COMPANY_NAME} · ${COMPANY_LOCATION} · ${COMPANY_PHONE}<br />
+      Vous ne recevrez pas d'autre email sans en avoir fait la demande. Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.</p>
+    `,
+  })
+}
