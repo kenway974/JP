@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { EstimationWizard } from '@/components/wizard/EstimationWizard'
 import { Shield, Clock, Gift } from 'lucide-react'
-import { COMPANY_LOCATION, COMPANY_PHONE, COMPANY_PHONE_RAW } from '@/lib/config'
+import { COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: `Estimation gratuite — Devis chauffage, clim, VMC en ${COMPANY_LOCATION}`,
+  title: `Estimation gratuite — Devis chauffage, clim, VMC ${COMPANY_LOCATION_IN}`,
   description: 'Obtenez une estimation du coût de vos travaux en 2 minutes. Chauffage, climatisation, VMC, plomberie, électricité. Devis indicatif gratuit + guide pratique offert.',
 }
 
@@ -55,7 +55,7 @@ export default function EstimationPage() {
                 Estimation gratuite en ligne
               </h1>
               <p className="text-slate-500 mb-8">
-                Répondez à 7 questions pour obtenir une fourchette de prix indicative pour vos travaux en {COMPANY_LOCATION}.
+                Répondez à 7 questions pour obtenir une fourchette de prix indicative pour vos travaux {COMPANY_LOCATION_IN}.
               </p>
               <EstimationWizard />
             </div>

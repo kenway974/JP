@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { RealisationCard } from '@/components/realisations/RealisationCard'
-import { COMPANY_SHORT_NAME, COMPANY_LOCATION } from '@/lib/config'
+import { COMPANY_SHORT_NAME, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Nos réalisations — Chauffage, Climatisation, VMC | ${COMPANY_SHORT_NAME}`,
-  description: `Découvrez nos chantiers récents en chauffage, climatisation et VMC en ${COMPANY_LOCATION}.`,
+  description: `Découvrez nos chantiers récents en chauffage, climatisation et VMC ${COMPANY_LOCATION_IN}.`,
 }
 
 async function getRealisations() {

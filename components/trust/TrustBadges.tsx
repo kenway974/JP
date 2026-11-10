@@ -1,12 +1,12 @@
 import { Shield, Clock, Award, Users, Zap, ThumbsUp } from 'lucide-react'
-import { COMPANY_LOCATION, COMPANY_SINCE } from '@/lib/config'
+import { COMPANY_SINCE, COMPANY_LOCATION_IN } from '@/lib/config'
 
 const BADGES = [
   { icon: Clock, label: 'Disponible 24h/7j', sub: 'Urgences prises en charge' },
   { icon: Award, label: `Depuis ${COMPANY_SINCE}`, sub: '15+ ans d\'expérience' },
   { icon: Shield, label: 'Certifié & assuré', sub: 'Garantie décennale' },
   { icon: Users, label: 'Particuliers & pros', sub: 'Grands groupes également' },
-  { icon: Zap, label: 'Intervention rapide', sub: `${COMPANY_LOCATION} entière` },
+  { icon: Zap, label: 'Intervention rapide', sub: `Partout ${COMPANY_LOCATION_IN}` },
   { icon: ThumbsUp, label: 'Suivi personnalisé', sub: 'Un seul interlocuteur' },
 ]
 

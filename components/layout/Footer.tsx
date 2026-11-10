@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { Phone, Mail, Instagram, MapPin, Clock, Flame, Shield, Award } from 'lucide-react'
-import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, COMPANY_SINCE } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, COMPANY_SINCE, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export function Footer() {
   return (
     <footer className="bg-brand-navy-dark text-slate-300">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="container-site py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Colonne 1 - À propos */}
           <div>
@@ -19,7 +19,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm leading-relaxed mb-4">
-              Entreprise familiale spécialisée en chauffage, climatisation, VMC, plomberie et électricité en {COMPANY_LOCATION}. Plus de 15 ans d&apos;expérience à votre service.
+              Entreprise familiale spécialisée en chauffage, climatisation, VMC, plomberie et électricité {COMPANY_LOCATION_IN}. Plus de 15 ans d&apos;expérience à votre service.
             </p>
             <div className="flex gap-3">
               <div className="flex items-center gap-1 text-xs">
@@ -116,7 +116,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} {COMPANY_NAME}. Tous droits réservés.</p>
-          <p>Chauffagiste {COMPANY_LOCATION} · Installation · Entretien · Dépannage</p>
+          <p>Chauffagiste {COMPANY_LOCATION_IN} · Installation · Entretien · Dépannage</p>
         </div>
       </div>
     </footer>

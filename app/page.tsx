@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Phone, Star, CheckCircle, Flame, Snowflake, Wind, Droplets, Zap, Wrench } from 'lucide-react'
+import { ArrowRight, Phone, Star, CheckCircle, Flame, Snowflake, Wind, Droplets, Zap, Wrench, ShieldCheck, Lock, PiggyBank, Clock, CalendarCheck, FileCheck } from 'lucide-react'
 import { TrustBadges } from '@/components/trust/TrustBadges'
 import { FAQSchema } from '@/components/seo/SchemaOrg'
 import { prisma } from '@/lib/prisma'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { BlogCard } from '@/components/blog/BlogCard'
-import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION, COMPANY_SINCE } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION, COMPANY_LOCATION_IN, COMPANY_SINCE } from '@/lib/config'
 
 export const metadata: Metadata = {
-  title: `Chauffagiste ${COMPANY_LOCATION} — Installation, Entretien, Dépannage | ${COMPANY_SHORT_NAME}`,
-  description: `${COMPANY_NAME} intervient en ${COMPANY_LOCATION} pour l'installation, l'entretien et le dépannage de chaudières, pompes à chaleur, climatisation et VMC. Devis gratuit en ligne — réponse sous 24h.`,
+  // `absolute` : évite que le template du layout ajoute le nom une 2e fois (titre < 65 caractères)
+  title: { absolute: `Chauffagiste ${COMPANY_LOCATION_IN} : chauffage, clim, pompe à chaleur | ${COMPANY_SHORT_NAME}` },
+  description: `${COMPANY_NAME}, chauffagiste ${COMPANY_LOCATION_IN} : installation, entretien et dépannage de chaudières, pompes à chaleur, climatisation et VMC. Devis gratuit en ligne — réponse sous 24h.`,
 }
 
 const SERVICES = [
@@ -23,7 +24,7 @@ const SERVICES = [
 ]
 
 const FAQS = [
-  { question: `${COMPANY_SHORT_NAME} intervient dans quelle zone géographique ?`, answer: `${COMPANY_NAME} intervient dans toute la région ${COMPANY_LOCATION}.` },
+  { question: `${COMPANY_SHORT_NAME} intervient dans quelle zone géographique ?`, answer: `${COMPANY_NAME} intervient partout ${COMPANY_LOCATION_IN} et dans les environs.` },
   { question: 'Comment obtenir un devis pour mes travaux ?', answer: 'Utilisez notre formulaire d\'estimation en ligne (gratuit, sans engagement) pour obtenir une fourchette de prix en quelques minutes. Un devis définitif et contractuel est établi lors d\'une visite sur site gratuite.' },
   { question: 'Intervenez-vous en urgence le week-end ou la nuit ?', answer: `Oui, ${COMPANY_SHORT_NAME} est disponible 24h/24, 7j/7 pour les urgences (panne de chauffage, fuite, dépannage). Appelez le ${COMPANY_PHONE}.` },
   { question: 'Êtes-vous certifié RGE pour les aides à la rénovation ?', answer: `Oui, ${COMPANY_SHORT_NAME} est certifié RGE (Reconnu Garant de l'Environnement), ce qui vous permet de bénéficier des aides de l'État : MaPrimeRénov', CEE, éco-PTZ pour vos travaux de rénovation énergétique.` },
@@ -63,54 +64,87 @@ export default async function HomePage() {
       <FAQSchema faqs={FAQS} />
 
       {/* ─── Hero ───────────────────────────────────────────── */}
-      <section className="bg-hero-gradient text-white py-20 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 text-[200px] leading-none">🔥</div>
-          <div className="absolute bottom-10 right-10 text-[200px] leading-none">❄️</div>
+      <section className="bg-hero-gradient text-white py-16 md:py-28 relative overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none text-white/[0.04]">
+          <Flame className="absolute -top-6 -left-10 h-64 w-64 md:h-96 md:w-96" strokeWidth={1} />
+          <Snowflake className="absolute -bottom-16 -right-10 h-64 w-64 md:h-96 md:w-96" strokeWidth={1} />
         </div>
         <div className="container-site relative z-10">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="bg-brand-orange/20 text-brand-orange text-sm px-3 py-1 rounded-full font-medium">
-                ✓ Expérience depuis {COMPANY_SINCE} · {COMPANY_LOCATION}
-              </span>
-            </div>
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              Votre chauffagiste de confiance en{' '}
-              <span className="text-brand-orange">{COMPANY_LOCATION}</span>
-            </h1>
-            <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-              Installation, entretien et dépannage en chauffage, climatisation, VMC, plomberie et électricité.
-              Devis gratuit en ligne — intervention sous 24h — disponible 7j/7.
+            {/* Pré-titre : crédibilité */}
+            <p className="inline-flex items-center gap-2 bg-brand-orange/15 text-brand-orange-light text-sm px-3 py-1 rounded-full font-medium mb-5">
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+              Artisan certifié RGE · Depuis {COMPANY_SINCE}
             </p>
-            <div className="flex flex-wrap gap-4">
+
+            {/* H1 : requête principale (« chauffagiste + zone »), puis les services les plus recherchés */}
+            <h1 className="font-heading font-bold leading-tight mb-5">
+              <span className="block text-4xl md:text-5xl lg:text-6xl">
+                Chauffagiste <span className="text-brand-orange">{COMPANY_LOCATION_IN}</span>
+              </span>
+              <span className="block mt-3 text-xl md:text-2xl lg:text-3xl text-slate-200 font-semibold">
+                Chauffage, climatisation et pompe à chaleur
+              </span>
+            </h1>
+
+            {/* Sous-titre : la promesse, en une phrase */}
+            <p className="text-lg md:text-xl text-slate-300 mb-6 leading-relaxed">
+              Installation, entretien et dépannage de vos équipements, du devis jusqu&apos;à la mise en service.
+            </p>
+
+            {/* Arguments clés : scannables en un coup d'œil */}
+            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+              {[
+                { icon: FileCheck, text: 'Devis gratuit en ligne' },
+                { icon: Clock, text: 'Intervention sous 24h' },
+                { icon: CalendarCheck, text: 'Disponible 7j/7' },
+              ].map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-2 text-white font-medium">
+                  <Icon className="h-5 w-5 text-brand-orange flex-shrink-0" aria-hidden="true" />
+                  {text}
+                </li>
+              ))}
+            </ul>
+
+            {/* Actions : 1 principale, 1 secondaire, 1 tertiaire */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/estimation"
-                className="btn-primary text-lg px-8 py-4 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-shadow"
+                className="btn-primary justify-center text-lg px-8 py-4 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-shadow"
               >
-                Estimation gratuite <ArrowRight className="h-5 w-5" />
+                Estimation gratuite <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </Link>
               <a
                 href={`tel:${COMPANY_PHONE_RAW}`}
-                className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-xl transition-colors text-lg"
+                className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-xl transition-colors text-lg"
               >
-                <Phone className="h-5 w-5 text-brand-orange" />
+                <Phone className="h-5 w-5 text-brand-orange" aria-hidden="true" />
                 {COMPANY_PHONE}
               </a>
             </div>
-            <div className="flex flex-wrap gap-6 mt-10">
-              {[
-                { icon: '⭐', text: '4.9/5 · +50 avis' },
-                { icon: '🚀', text: 'Devis en 24h' },
-                { icon: '🔒', text: 'Sans engagement' },
-                { icon: '🏆', text: 'Certifié RGE' },
-              ].map(({ icon, text }) => (
-                <div key={text} className="flex items-center gap-2 text-slate-300 text-sm">
-                  <span>{icon}</span>
-                  <span>{text}</span>
-                </div>
-              ))}
-            </div>
+            <Link
+              href="/simulateur-aides"
+              className="mt-4 inline-flex items-center gap-2 py-2 text-sm text-slate-300 hover:text-white underline underline-offset-4 decoration-slate-500 hover:decoration-white transition-colors"
+            >
+              <PiggyBank className="h-4 w-4 text-brand-orange-light" aria-hidden="true" />
+              Simuler mes aides et ma réduction d&apos;impôt
+            </Link>
+
+            {/* Réassurance */}
+            <ul className="flex flex-wrap gap-x-6 gap-y-2 mt-8 pt-6 border-t border-white/10 text-sm text-slate-300">
+              <li className="flex items-center gap-2">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+                <span><strong className="text-white">4.9/5</strong> · +50 avis</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-brand-orange" aria-hidden="true" />
+                Certifié RGE
+              </li>
+              <li className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-brand-orange" aria-hidden="true" />
+                Sans engagement
+              </li>
+            </ul>
           </div>
         </div>
       </section>
@@ -130,7 +164,7 @@ export default async function HomePage() {
               Nos domaines d&apos;expertise
             </h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-lg">
-              Une seule entreprise pour tous vos besoins en génie climatique, plomberie et électricité en {COMPANY_LOCATION}.
+              Une seule entreprise pour tous vos besoins en génie climatique, plomberie et électricité {COMPANY_LOCATION_IN}.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -247,7 +281,7 @@ export default async function HomePage() {
                 <span className="font-bold text-brand-navy text-xl ml-2">4.9/5</span>
               </div>
               <h2 className="text-3xl font-heading font-bold text-brand-navy mb-3">Ce que disent nos clients</h2>
-              <p className="text-slate-500">Avis vérifiés de clients ayant fait appel à {COMPANY_SHORT_NAME} en {COMPANY_LOCATION}.</p>
+              <p className="text-slate-500">Avis vérifiés de clients ayant fait appel à {COMPANY_SHORT_NAME} {COMPANY_LOCATION_IN}.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {reviews.map((r) => (

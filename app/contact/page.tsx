@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Phone, Mail, Instagram, Clock, MapPin, CheckCircle, Loader2, Send } from 'lucide-react'
-import { COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION } from '@/lib/config'
+import { COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, COMPANY_LOCATION_TYPE } from '@/lib/config'
 
 const SUBJECTS = [
   'Demande de devis',
@@ -54,7 +54,7 @@ export default function ContactPage() {
               { icon: Phone, label: 'Téléphone', value: COMPANY_PHONE, href: `tel:${COMPANY_PHONE_RAW}`, sub: 'Disponible 24h/7j — urgences' },
               { icon: Mail, label: 'Email', value: COMPANY_EMAIL, href: `mailto:${COMPANY_EMAIL}`, sub: 'Réponse sous 24h' },
               { icon: Instagram, label: 'Instagram', value: 'Instagram', href: 'https://instagram.com', sub: 'Actualités & réalisations' },
-              { icon: MapPin, label: 'Zone d\'intervention', value: COMPANY_LOCATION, href: undefined, sub: 'Toute la région' },
+              { icon: MapPin, label: 'Zone d\'intervention', value: COMPANY_LOCATION, href: undefined, sub: COMPANY_LOCATION_TYPE === 'ville' ? 'Et communes alentour' : 'Tout le secteur' },
               { icon: Clock, label: 'Horaires', value: 'Lun–Sam : 7h–20h', href: undefined, sub: 'Urgences : 24h/7j' },
             ].map(({ icon: Icon, label, value, href, sub }) => (
               <div key={label} className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex items-start gap-3">

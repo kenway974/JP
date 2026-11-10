@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { ArrowLeft, ArrowRight, Clock, Calendar } from 'lucide-react'
 import { BlogCard } from '@/components/blog/BlogCard'
-import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION, COMPANY_LOCATION_IN } from '@/lib/config'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -112,7 +112,7 @@ export default async function BlogPostPage({ params }: Props) {
           {/* CTA intégré */}
           <div className="bg-brand-navy text-white rounded-2xl p-8 mb-8">
             <h2 className="font-heading font-bold text-xl mb-3">Besoin d&apos;un professionnel ?</h2>
-            <p className="text-slate-400 text-sm mb-5">{COMPANY_NAME} intervient en {COMPANY_LOCATION} pour tous vos travaux de chauffage, climatisation et VMC.</p>
+            <p className="text-slate-400 text-sm mb-5">{COMPANY_NAME} intervient {COMPANY_LOCATION_IN} pour tous vos travaux de chauffage, climatisation et VMC.</p>
             <div className="flex flex-wrap gap-3">
               <Link href="/estimation" className="bg-brand-orange hover:bg-brand-orange-dark text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors inline-flex items-center gap-2">
                 Estimation gratuite <ArrowRight className="h-4 w-4" />

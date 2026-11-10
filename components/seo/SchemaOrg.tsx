@@ -1,4 +1,4 @@
-import { COMPANY_NAME, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, SITE_URL } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, SITE_URL, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export function LocalBusinessSchema() {
   const schema = {
@@ -6,7 +6,7 @@ export function LocalBusinessSchema() {
     '@type': 'LocalBusiness',
     '@id': `${SITE_URL}/#organization`,
     name: COMPANY_NAME,
-    description: `Chauffagiste en ${COMPANY_LOCATION}. Installation, entretien et dépannage de chaudières, pompes à chaleur, climatisation, VMC, plomberie et électricité.`,
+    description: `Chauffagiste ${COMPANY_LOCATION_IN}. Installation, entretien et dépannage de chaudières, pompes à chaleur, climatisation, VMC, plomberie et électricité.`,
     url: SITE_URL,
     telephone: `+33${COMPANY_PHONE_RAW.replace(/^0/, '')}`,
     email: COMPANY_EMAIL,
@@ -31,12 +31,12 @@ export function LocalBusinessSchema() {
       '@type': 'OfferCatalog',
       name: `Services ${COMPANY_NAME}`,
       itemListElement: [
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation chaudière ${COMPANY_LOCATION}` } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation pompe à chaleur ${COMPANY_LOCATION}` } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation climatisation ${COMPANY_LOCATION}` } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Entretien chaudière ${COMPANY_LOCATION}` } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Dépannage chauffage urgence ${COMPANY_LOCATION}` } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation VMC ${COMPANY_LOCATION}` } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation chaudière ${COMPANY_LOCATION_IN}` } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation pompe à chaleur ${COMPANY_LOCATION_IN}` } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation climatisation ${COMPANY_LOCATION_IN}` } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Entretien chaudière ${COMPANY_LOCATION_IN}` } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Dépannage chauffage urgence ${COMPANY_LOCATION_IN}` } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: `Installation VMC ${COMPANY_LOCATION_IN}` } },
       ],
     },
     foundingDate: '2024',

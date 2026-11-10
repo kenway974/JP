@@ -28,7 +28,7 @@ const ORANGE_TEXT = '#9a3412'
 const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Mon Chauffagiste'
 const COMPANY_PHONE = process.env.NEXT_PUBLIC_COMPANY_PHONE || 'XX XX XX XX XX'
 const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL || 'contact@example.com'
-const COMPANY_LOCATION = process.env.NEXT_PUBLIC_COMPANY_LOCATION || 'Votre région'
+const COMPANY_LOCATION = process.env.NEXT_PUBLIC_COMPANY_LOCATION || 'Votre ville'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.example.com'
 
 function fmt(n: number) {
