@@ -1,5 +1,5 @@
 import { Shield, Clock, Award, Users, Zap, ThumbsUp } from 'lucide-react'
-import { COMPANY_LOCATION, COMPANY_SINCE, COMPANY_LOCATION_IN } from '@/lib/config'
+import { COMPANY_SINCE, COMPANY_LOCATION_IN } from '@/lib/config'
 
 const BADGES = [
   { icon: Clock, label: 'Disponible 24h/7j', sub: 'Urgences prises en charge' },

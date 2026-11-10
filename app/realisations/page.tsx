@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { RealisationCard } from '@/components/realisations/RealisationCard'
-import { COMPANY_SHORT_NAME, COMPANY_LOCATION, COMPANY_LOCATION_IN } from '@/lib/config'
+import { COMPANY_SHORT_NAME, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Nos réalisations — Chauffage, Climatisation, VMC | ${COMPANY_SHORT_NAME}`,

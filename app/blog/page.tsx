@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { BlogCard } from '@/components/blog/BlogCard'
-import { COMPANY_SHORT_NAME, COMPANY_LOCATION, COMPANY_LOCATION_IN } from '@/lib/config'
+import { COMPANY_SHORT_NAME, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Blog & Conseils — Chauffage, Climatisation, VMC | ${COMPANY_SHORT_NAME}`,

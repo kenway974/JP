@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { ReviewForm } from '@/components/reviews/ReviewForm'
 import { Star } from 'lucide-react'
-import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_LOCATION_IN } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Avis clients — ${COMPANY_NAME}`,

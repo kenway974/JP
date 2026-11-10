@@ -32,7 +32,7 @@
 
 @layer components {
   .container-site {
-    @apply mx-auto max-w-6xl px-6 sm:px-10 lg:px-12;
+    @apply mx-auto max-w-6xl px-8 sm:px-10 lg:px-12;
   }
 
   .section-padding {

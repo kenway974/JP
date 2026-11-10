@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { EstimationWizard } from '@/components/wizard/EstimationWizard'
 import { Shield, Clock, Gift } from 'lucide-react'
-import { COMPANY_LOCATION, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION_IN } from '@/lib/config'
+import { COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Estimation gratuite — Devis chauffage, clim, VMC ${COMPANY_LOCATION_IN}`,
