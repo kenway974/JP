@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
-import { CookieBanner } from '@/components/layout/CookieBanner'
+import { Inter, Plus_Jakarta_Sans, Comic_Neue, Anton, Lobster } from 'next/font/google'
+import { HeaderSale } from '@/components/sale/HeaderSale'
+import { FooterSale } from '@/components/sale/FooterSale'
+import { PopupsSale } from '@/components/sale/PopupsSale'
 import { LocalBusinessSchema } from '@/components/seo/SchemaOrg'
 import { Toaster } from 'react-hot-toast'
 import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_SINCE, SITE_URL, COMPANY_LOCATION_IN } from '@/lib/config'
@@ -10,12 +10,17 @@ import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plus-jakarta', display: 'swap' })
+// VERSION SALE — ❌ trop de polices fantaisie mélangées
+const comic = Comic_Neue({ subsets: ['latin'], weight: '700', variable: '--font-comic', display: 'swap' })
+const anton = Anton({ subsets: ['latin'], weight: '400', variable: '--font-anton', display: 'swap' })
+const lobster = Lobster({ subsets: ['latin'], weight: '400', variable: '--font-lobster', display: 'swap' })
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${COMPANY_NAME} — Installation, Entretien & Dépannage ${COMPANY_LOCATION_IN}`,
-    template: `%s | ${COMPANY_NAME}`,
+    // VERSION SALE — ❌ titre d'onglet par défaut sans métier ni ville
+    default: 'Mon site',
+    template: '%s',
   },
   description: `Chauffagiste ${COMPANY_LOCATION_IN} depuis ${COMPANY_SINCE}. Installation chaudière, pompe à chaleur, climatisation, VMC, plomberie. Devis gratuit en ligne. Disponible 24h/7j.`,
   keywords: [
@@ -61,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
-    <html lang="fr" className={`${inter.variable} ${plusJakarta.variable}`}>
+    <html lang="fr" className={`${inter.variable} ${plusJakarta.variable} ${comic.variable} ${anton.variable} ${lobster.variable}`}>
       <head>
         <LocalBusinessSchema />
         {gaId && (
@@ -82,10 +87,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       </head>
       <body>
-        <Header />
+        <HeaderSale />
         <main>{children}</main>
-        <Footer />
-        <CookieBanner />
+        <FooterSale />
+        <PopupsSale />
         <Toaster position="bottom-right" toastOptions={{ style: { borderRadius: '12px', fontFamily: 'var(--font-inter)' } }} />
       </body>
     </html>
