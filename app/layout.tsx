@@ -5,7 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { CookieBanner } from '@/components/layout/CookieBanner'
 import { LocalBusinessSchema } from '@/components/seo/SchemaOrg'
 import { Toaster } from 'react-hot-toast'
-import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_SINCE, SITE_URL } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_SINCE, SITE_URL, COMPANY_LOCATION_IN } from '@/lib/config'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -14,10 +14,10 @@ const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-pl
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${COMPANY_NAME} — Installation, Entretien & Dépannage en ${COMPANY_LOCATION}`,
+    default: `${COMPANY_NAME} — Installation, Entretien & Dépannage ${COMPANY_LOCATION_IN}`,
     template: `%s | ${COMPANY_NAME}`,
   },
-  description: `Chauffagiste en ${COMPANY_LOCATION} depuis ${COMPANY_SINCE}. Installation chaudière, pompe à chaleur, climatisation, VMC, plomberie. Devis gratuit en ligne. Disponible 24h/7j.`,
+  description: `Chauffagiste ${COMPANY_LOCATION_IN} depuis ${COMPANY_SINCE}. Installation chaudière, pompe à chaleur, climatisation, VMC, plomberie. Devis gratuit en ligne. Disponible 24h/7j.`,
   keywords: [
     `chauffagiste ${COMPANY_LOCATION.toLowerCase()}`, 'installation chaudière', 'pompe à chaleur',
     'climatisation réversible', 'entretien chaudière', 'dépannage chauffage urgence',
@@ -38,13 +38,13 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: COMPANY_NAME,
     title: `${COMPANY_NAME} — ${COMPANY_LOCATION}`,
-    description: `Chauffagiste en ${COMPANY_LOCATION} depuis ${COMPANY_SINCE}. Devis gratuit en ligne.`,
+    description: `Chauffagiste ${COMPANY_LOCATION_IN} depuis ${COMPANY_SINCE}. Devis gratuit en ligne.`,
     images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: `${COMPANY_NAME} ${COMPANY_LOCATION}` }],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${COMPANY_NAME} — ${COMPANY_LOCATION}`,
-    description: `Installation, entretien et dépannage en chauffage, climatisation et VMC en ${COMPANY_LOCATION}.`,
+    description: `Installation, entretien et dépannage en chauffage, climatisation et VMC ${COMPANY_LOCATION_IN}.`,
     images: ['/images/og-image.jpg'],
   },
   alternates: { canonical: SITE_URL },

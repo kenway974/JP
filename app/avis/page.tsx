@@ -3,11 +3,11 @@ import { prisma } from '@/lib/prisma'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { ReviewForm } from '@/components/reviews/ReviewForm'
 import { Star } from 'lucide-react'
-import { COMPANY_NAME, COMPANY_LOCATION } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Avis clients — ${COMPANY_NAME}`,
-  description: `Découvrez les avis de nos clients satisfaits en ${COMPANY_LOCATION}. Installation chaudière, climatisation, VMC, plomberie. Déposez votre avis.`,
+  description: `Découvrez les avis de nos clients satisfaits ${COMPANY_LOCATION_IN}. Installation chaudière, climatisation, VMC, plomberie. Déposez votre avis.`,
 }
 
 async function getReviews() {

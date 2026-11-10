@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CheckCircle, Calendar, Phone, ArrowRight, Star } from 'lucide-react'
-import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION } from '@/lib/config'
+import { COMPANY_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_LOCATION, COMPANY_LOCATION_IN } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: `Devis envoyé — Prochaines étapes | ${COMPANY_NAME}`,
@@ -113,7 +113,7 @@ export default async function ConfirmationPage({
             {[1,2,3,4,5].map((i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
           </div>
           <p className="text-slate-600 text-sm italic">
-            &ldquo;Très réactif, travail soigné et prix honnête. Je recommande vivement {COMPANY_NAME} pour tout projet de chauffage en {COMPANY_LOCATION}.&rdquo;
+            &ldquo;Très réactif, travail soigné et prix honnête. Je recommande vivement {COMPANY_NAME} pour tout projet de chauffage {COMPANY_LOCATION_IN}.&rdquo;
           </p>
           <p className="text-xs text-slate-400 mt-2">— Thomas B., Versailles</p>
         </div>
