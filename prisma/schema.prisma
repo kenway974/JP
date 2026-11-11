@@ -202,3 +202,12 @@ model EstimationFactor {
   active        Boolean  @default(true)
   updatedAt     DateTime @updatedAt
 }
+model NewsletterSubscriber {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  offer      String    // id d'une offre de lib/newsletter/offers.ts
+  consentAt  DateTime
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}

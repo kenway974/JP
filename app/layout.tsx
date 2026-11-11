@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { CookieBanner } from '@/components/layout/CookieBanner'
+import { LeadMagnet } from '@/components/newsletter/LeadMagnet'
 import { LocalBusinessSchema } from '@/components/seo/SchemaOrg'
 import { Toaster } from 'react-hot-toast'
 import { COMPANY_NAME, COMPANY_LOCATION, COMPANY_SINCE, SITE_URL, COMPANY_LOCATION_IN } from '@/lib/config'
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
         <Footer />
         <CookieBanner />
+        <LeadMagnet />
         <Toaster position="bottom-right" toastOptions={{ style: { borderRadius: '12px', fontFamily: 'var(--font-inter)' } }} />
       </body>
     </html>
