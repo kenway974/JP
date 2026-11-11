@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { Gift, X, Loader2, CheckCircle } from 'lucide-react'
 import { OFFERS } from '@/lib/newsletter/offers'
@@ -7,11 +7,24 @@ import { OFFERS } from '@/lib/newsletter/offers'
 const STORAGE_KEY = 'lead-magnet'
 
 // Stockage navigateur optionnel : si bloqué, la popup peut réapparaître, sans gravité
-function isDone(): boolean {
-  try { return localStorage.getItem(STORAGE_KEY) === 'done' } catch { return false }
+// Après une fermeture, la popup revient au plus tôt 5 minutes plus tard ; après un envoi, jamais.
+const SNOOZE_MS = 5 * 60 * 1000
+
+function isBlocked(): boolean {
+  try {
+    const value = localStorage.getItem(STORAGE_KEY)
+    if (value === 'done') return true
+    if (value?.startsWith('snooze:')) return Date.now() - Number(value.slice(7)) < SNOOZE_MS
+  } catch { /* ignoré */ }
+  return false
 }
 function markDone() {
   try { localStorage.setItem(STORAGE_KEY, 'done') } catch { /* ignoré */ }
+}
+function markSnoozed() {
+  try {
+    if (localStorage.getItem(STORAGE_KEY) !== 'done') localStorage.setItem(STORAGE_KEY, `snooze:${Date.now()}`)
+  } catch { /* ignoré */ }
 }
 
 export function LeadMagnet() {
@@ -22,25 +35,33 @@ export function LeadMagnet() {
   const [website, setWebsite] = useState('') // champ piège
   const [status, setStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  // Vrai tant que la popup est ouverte ou vient d'être fermée : empêche de la rouvrir à chaque scroll,
+  // même si le stockage navigateur est bloqué.
+  const lockedRef = useRef(false)
 
   useEffect(() => {
     let timer: number | undefined
     let armed = false
 
     // Apparaît après 20 secondes de lecture ou à 40 % de la page, jamais à l'arrivée
+    const show = () => {
+      if (lockedRef.current || isBlocked()) return
+      lockedRef.current = true
+      setOpen(true)
+    }
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight
-      if (max > 0 && window.scrollY / max >= 0.4) setOpen(true)
+      if (max > 0 && window.scrollY / max >= 0.4) show()
     }
 
     // Armé seulement une fois que le visiteur a répondu au bandeau cookies
     const arm = () => {
-      if (armed || isDone()) return
+      if (armed) return
       let answered = false
       try { answered = !!localStorage.getItem('cookie-consent') } catch { answered = false }
       if (!answered) return
       armed = true
-      timer = window.setTimeout(() => setOpen(true), 20000)
+      timer = window.setTimeout(show, 20000)
       window.addEventListener('scroll', onScroll, { passive: true })
     }
 
@@ -54,8 +75,10 @@ export function LeadMagnet() {
   }, [])
 
   const close = () => {
-    markDone()
+    markSnoozed()
     setOpen(false)
+    // Réarmée après 5 minutes : la prochaine fois qu'il fait défiler la page, elle peut revenir.
+    window.setTimeout(() => { lockedRef.current = false }, SNOOZE_MS)
   }
 
   const submit = async (e: FormEvent) => {
