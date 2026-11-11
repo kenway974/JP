@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import type { LeadStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import {
-  LEAD_STATUSES,
+  LEAD_GROUPS,
   LEAD_STATUS_LABELS,
   LEAD_STATUS_STYLES,
   SERVICE_SHORT_LABELS,
@@ -12,16 +13,16 @@ import {
   URGENCY_LABELS,
   SPECIFICITY_LABELS,
   label,
-  isLeadStatus,
+  findGroup,
   formatEuroRange,
 } from '@/lib/lead-labels'
 
 const MAX_VISIBLE_SPECIFICITIES = 2
 
-async function getLeads(status?: string) {
+async function getLeads(statuses?: LeadStatus[]) {
   try {
     return await prisma.lead.findMany({
-      where: isLeadStatus(status) ? { status } : undefined,
+      where: statuses ? { status: { in: statuses } } : undefined,
       orderBy: { createdAt: 'desc' },
     })
   } catch {
@@ -41,44 +42,39 @@ async function getStatusCounts(): Promise<Record<string, number>> {
 export default async function AdminLeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ statut?: string }>
+  searchParams: Promise<{ groupe?: string }>
 }) {
-  const { statut } = await searchParams
-  const activeStatus = isLeadStatus(statut) ? statut : undefined
-  const [leads, counts] = await Promise.all([getLeads(activeStatus), getStatusCounts()])
+  const { groupe } = await searchParams
+  const activeGroup = findGroup(groupe)
+  const [leads, counts] = await Promise.all([getLeads(activeGroup?.statuses), getStatusCounts()])
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
+
+  const chipClass = (active: boolean) =>
+    `px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+      active
+        ? 'bg-slate-800 text-white border-slate-800'
+        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+    }`
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-800 mb-1">Demandes d&apos;estimation</h1>
       <p className="text-sm text-slate-500 mb-5">
-        Chaque ligne est une demande reçue via le formulaire d&apos;estimation. Ouvrez-la pour la qualifier ou la disqualifier.
+        Chaque ligne est une demande reçue via le formulaire d&apos;estimation. Ouvrez-la pour la qualifier ou l&apos;écarter.
       </p>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        <Link
-          href="/admin/leads"
-          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-            !activeStatus
-              ? 'bg-slate-800 text-white border-slate-800'
-              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-          }`}
-        >
+        <Link href="/admin/leads" className={chipClass(!activeGroup)}>
           Toutes ({total})
         </Link>
-        {LEAD_STATUSES.map((s) => (
-          <Link
-            key={s}
-            href={`/admin/leads?statut=${s}`}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-              activeStatus === s
-                ? 'bg-slate-800 text-white border-slate-800'
-                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            {LEAD_STATUS_LABELS[s]} ({counts[s] ?? 0})
-          </Link>
-        ))}
+        {LEAD_GROUPS.map((g) => {
+          const n = g.statuses.reduce((sum, s) => sum + (counts[s] ?? 0), 0)
+          return (
+            <Link key={g.key} href={`/admin/leads?groupe=${g.key}`} className={chipClass(activeGroup?.key === g.key)}>
+              {g.label} ({n})
+            </Link>
+          )
+        })}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
@@ -168,7 +164,7 @@ export default async function AdminLeadsPage({
               {leads.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
-                    {activeStatus ? 'Aucune demande avec ce statut' : 'Aucune demande pour le moment'}
+                    {activeGroup ? 'Aucune demande dans cette catégorie' : 'Aucune demande pour le moment'}
                   </td>
                 </tr>
               )}

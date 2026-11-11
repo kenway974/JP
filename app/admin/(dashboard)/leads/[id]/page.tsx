@@ -7,9 +7,13 @@ import { ArrowLeft, Phone, Mail, MapPin } from 'lucide-react'
 import type { LeadStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import {
-  LEAD_STATUSES,
+  LEAD_GROUPS,
   LEAD_STATUS_LABELS,
   LEAD_STATUS_STYLES,
+  CLOSED_STATUSES,
+  NEXT_ACTIONS,
+  DISQUALIFY_ACTIONS,
+  ACTION_TONE_STYLES,
   SERVICE_SHORT_LABELS,
   HOUSING_SHORT_LABELS,
   BUILDING_AGE_SHORT_LABELS,
@@ -20,6 +24,7 @@ import {
   label,
   isLeadStatus,
   formatEuroRange,
+  readMetadata,
 } from '@/lib/lead-labels'
 
 const BOOKING_STATUS_LABELS: Record<string, string> = {
@@ -28,19 +33,42 @@ const BOOKING_STATUS_LABELS: Record<string, string> = {
   CANCELLED: 'Annulé',
 }
 
-async function setStatus(id: string, status: LeadStatus) {
-  'use server'
-  if (!isLeadStatus(status)) return
-  await prisma.lead.update({ where: { id }, data: { status } })
+const MAX_NOTE_LENGTH = 2000
+
+function revalidateLead(id: string) {
   revalidatePath('/admin')
   revalidatePath('/admin/leads')
   revalidatePath(`/admin/leads/${id}`)
+}
+
+async function setStatus(id: string, status: LeadStatus) {
+  'use server'
+  if (!isLeadStatus(status)) return
+  const current = await prisma.lead.findUnique({ where: { id }, select: { status: true } })
+  if (!current || current.status === status) return
+
+  // Le changement de statut et sa trace dans l'historique vont ensemble.
+  await prisma.$transaction([
+    prisma.lead.update({ where: { id }, data: { status } }),
+    prisma.leadEvent.create({
+      data: { leadId: id, type: 'STATUS_CHANGED', metadata: { from: current.status, to: status } },
+    }),
+  ])
+  revalidateLead(id)
 }
 
 async function setStatusFromForm(id: string, formData: FormData) {
   'use server'
   const status = formData.get('status')
   if (isLeadStatus(status)) await setStatus(id, status)
+}
+
+async function addNote(id: string, formData: FormData) {
+  'use server'
+  const text = String(formData.get('note') ?? '').trim().slice(0, MAX_NOTE_LENGTH)
+  if (!text) return
+  await prisma.leadEvent.create({ data: { leadId: id, type: 'NOTE', metadata: { text } } })
+  revalidateLead(id)
 }
 
 function Row({ name, children }: { name: string; children: React.ReactNode }) {
@@ -61,6 +89,19 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   )
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const known = isLeadStatus(status)
+  return (
+    <span
+      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+        known ? LEAD_STATUS_STYLES[status] : 'bg-slate-100 text-slate-600'
+      }`}
+    >
+      {known ? LEAD_STATUS_LABELS[status] : status}
+    </span>
+  )
+}
+
 export default async function AdminLeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
@@ -74,8 +115,9 @@ export default async function AdminLeadDetailPage({ params }: { params: Promise<
 
   if (!lead) notFound()
 
-  const isLost = lead.status === 'LOST'
-  const isConverted = lead.status === 'CONVERTED'
+  const isClosed = CLOSED_STATUSES.includes(lead.status)
+  const notes = lead.events.filter((e) => e.type === 'NOTE')
+  const history = lead.events.filter((e) => e.type !== 'NOTE')
 
   return (
     <div className="max-w-5xl">
@@ -142,19 +184,69 @@ export default async function AdminLeadDetailPage({ params }: { params: Promise<
             </Card>
           )}
 
+          <Card title="Notes internes">
+            <form action={addNote.bind(null, lead.id)} className="mb-4">
+              <label htmlFor="note" className="sr-only">
+                Ajouter une note
+              </label>
+              <textarea
+                id="note"
+                name="note"
+                rows={3}
+                maxLength={MAX_NOTE_LENGTH}
+                placeholder="Ex. : appeler après 18h, chaudière gaz de 2004, accès par la cour…"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
+              />
+              <button
+                type="submit"
+                className="mt-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-700"
+              >
+                Ajouter la note
+              </button>
+            </form>
+            {notes.length === 0 ? (
+              <p className="text-sm text-slate-400">Aucune note pour cette demande.</p>
+            ) : (
+              <ul className="space-y-3">
+                {notes.map((note) => (
+                  <li key={note.id} className="bg-slate-50 rounded-lg p-3">
+                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                      {String(readMetadata(note.metadata).text ?? '')}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1.5">
+                      {format(note.createdAt, "dd/MM/yy 'à' HH:mm", { locale: fr })}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+
           <Card title="Historique">
-            {lead.events.length === 0 ? (
+            {history.length === 0 ? (
               <p className="text-sm text-slate-400">Aucune action enregistrée pour cette demande.</p>
             ) : (
               <ul className="space-y-2">
-                {lead.events.map((event) => (
-                  <li key={event.id} className="flex justify-between gap-4 text-sm">
-                    <span className="text-slate-700">{EVENT_LABELS[event.type] ?? event.type}</span>
-                    <span className="text-slate-400 whitespace-nowrap">
-                      {format(event.createdAt, 'dd/MM/yy HH:mm', { locale: fr })}
-                    </span>
-                  </li>
-                ))}
+                {history.map((event) => {
+                  const meta = readMetadata(event.metadata)
+                  return (
+                    <li key={event.id} className="flex justify-between gap-4 text-sm">
+                      <span className="text-slate-700 flex flex-wrap items-center gap-1.5">
+                        {EVENT_LABELS[event.type] ?? event.type}
+                        {event.type === 'STATUS_CHANGED' && (
+                          <>
+                            <StatusBadge status={String(meta.from ?? '')} />
+                            <span className="text-slate-400">→</span>
+                            <StatusBadge status={String(meta.to ?? '')} />
+                          </>
+                        )}
+                      </span>
+                      <span className="text-slate-400 whitespace-nowrap">
+                        {format(event.createdAt, 'dd/MM/yy HH:mm', { locale: fr })}
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </Card>
@@ -186,46 +278,60 @@ export default async function AdminLeadDetailPage({ params }: { params: Promise<
             </div>
           </Card>
 
-          <Card title="Qualification">
-            <p className="text-xs text-slate-500 mb-3">
-              Après avoir étudié la demande, indiquez si elle est à suivre ou à écarter.
-            </p>
-            <div className="flex flex-col gap-2">
-              {lead.status !== 'CONTACTED' && !isConverted && !isLost && (
-                <form action={setStatus.bind(null, lead.id, 'CONTACTED')}>
-                  <button
-                    type="submit"
-                    className="w-full bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-cyan-100"
-                  >
-                    Qualifier : client contacté
-                  </button>
-                </form>
-              )}
-              {!isConverted && (
-                <form action={setStatus.bind(null, lead.id, 'CONVERTED')}>
-                  <button
-                    type="submit"
-                    className="w-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100"
-                  >
-                    Marquer comme converti
-                  </button>
-                </form>
-              )}
-              {!isLost && (
-                <form action={setStatus.bind(null, lead.id, 'LOST')}>
-                  <button
-                    type="submit"
-                    className="w-full bg-red-50 text-red-700 border border-red-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-100"
-                  >
-                    Disqualifier : demande perdue
-                  </button>
-                </form>
-              )}
-            </div>
+          {isClosed ? (
+            <Card title="Demande clôturée">
+              <p className="text-sm text-slate-600 mb-3">
+                Statut actuel : <StatusBadge status={lead.status} />
+              </p>
+              <form action={setStatus.bind(null, lead.id, 'ESTIMATE_VIEWED')}>
+                <button
+                  type="submit"
+                  className="w-full bg-slate-50 text-slate-700 border border-slate-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100"
+                >
+                  Rouvrir : remettre à traiter
+                </button>
+              </form>
+            </Card>
+          ) : (
+            <>
+              <Card title="Prochaine étape">
+                <div className="flex flex-col gap-2">
+                  {NEXT_ACTIONS.filter((a) => a.status !== lead.status).map((action) => (
+                    <form key={action.status} action={setStatus.bind(null, lead.id, action.status)}>
+                      <button
+                        type="submit"
+                        className={`w-full text-left border px-3 py-2 rounded-lg transition-colors ${ACTION_TONE_STYLES[action.tone]}`}
+                      >
+                        <span className="block text-sm font-medium">{action.label}</span>
+                        <span className="block text-xs opacity-75 mt-0.5">{action.hint}</span>
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              </Card>
 
-            <form action={setStatusFromForm.bind(null, lead.id)} className="mt-4 pt-4 border-t border-slate-100">
+              <Card title="Écarter la demande">
+                <p className="text-xs text-slate-500 mb-3">Choisissez le motif : il reste visible dans la liste.</p>
+                <div className="flex flex-col gap-2">
+                  {DISQUALIFY_ACTIONS.map((action) => (
+                    <form key={action.status} action={setStatus.bind(null, lead.id, action.status)}>
+                      <button
+                        type="submit"
+                        className="w-full text-left bg-red-50 text-red-700 border border-red-200 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-100"
+                      >
+                        {action.label}
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              </Card>
+            </>
+          )}
+
+          <Card title="Statut précis">
+            <form action={setStatusFromForm.bind(null, lead.id)}>
               <label htmlFor="status" className="block text-xs text-slate-500 mb-1.5">
-                Ou choisir un statut précis
+                Forcer un statut
               </label>
               <div className="flex gap-2">
                 <select
@@ -234,10 +340,14 @@ export default async function AdminLeadDetailPage({ params }: { params: Promise<
                   defaultValue={lead.status}
                   className="flex-1 min-w-0 border border-slate-200 rounded-lg px-2 py-2 text-sm bg-white"
                 >
-                  {LEAD_STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {LEAD_STATUS_LABELS[s]}
-                    </option>
+                  {LEAD_GROUPS.map((group) => (
+                    <optgroup key={group.key} label={group.label}>
+                      {group.statuses.map((s) => (
+                        <option key={s} value={s}>
+                          {LEAD_STATUS_LABELS[s]}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
                 <button

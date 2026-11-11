@@ -138,13 +138,24 @@ enum Urgency {
 }
 
 enum LeadStatus {
-  ESTIMATE_VIEWED
-  QUOTE_SENT
-  CALLBACK_REQUESTED
-  APPOINTMENT_BOOKED
+  // Valeurs d'origine
+  ESTIMATE_VIEWED     // Nouvelle demande
+  QUOTE_SENT          // Devis envoyé
+  CALLBACK_REQUESTED  // Rappel demandé par le client
+  APPOINTMENT_BOOKED  // Visite / RDV planifié
   CONTACTED
-  CONVERTED
-  LOST
+  CONVERTED           // Devis accepté
+  LOST                // Perdu (autre motif, concurrent…)
+  // Statuts métier ajoutés
+  INFO_INCOMPLETE     // Infos à compléter : à recontacter
+  AWAITING_CLIENT     // En attente du client (réponse, photos…)
+  VISIT_TO_PLAN       // Dossier complet : visite à planifier
+  VISIT_DONE          // Visite effectuée, devis à établir
+  QUOTE_FOLLOW_UP     // Devis à relancer
+  OUT_OF_ZONE         // Écarté : hors zone d'intervention
+  OUT_OF_SCOPE        // Écarté : hors prestations
+  BUDGET_MISMATCH     // Écarté : budget incompatible
+  UNREACHABLE         // Écarté : injoignable
 }
 
 enum EventType {
@@ -155,6 +166,8 @@ enum EventType {
   APPOINTMENT_BOOKED
   CONTACT_FORM_SUBMITTED
   PHONE_CLICKED
+  STATUS_CHANGED      // metadata : { from, to }
+  NOTE                // metadata : { text }
 }
 
 enum BookingStatus {
