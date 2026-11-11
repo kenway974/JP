@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Cookie, ShieldCheck } from 'lucide-react'
+import { CONSENT_KEY, CONSENT_CHANGED_EVENT, OPEN_COOKIE_BANNER_EVENT } from '@/lib/consent'
 
 type Consent = 'accepted' | 'declined'
 
@@ -15,27 +16,30 @@ export function CookieBanner() {
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem('cookie-consent')) setVisible(true)
+      const stored = localStorage.getItem(CONSENT_KEY)
+      if (!stored) setVisible(true)
+      // Visite suivante d'un visiteur qui avait accepté : on réactive la mesure d'audience
+      else if (stored === 'accepted') setGtagConsent('accepted')
     } catch {
       // Stockage bloqué (navigation privée) : le bandeau reste affiché
       setVisible(true)
     }
     // Lien « Gérer les cookies » du footer : rouvre le bandeau pour changer d'avis
     const reopen = () => setVisible(true)
-    window.addEventListener('open-cookie-banner', reopen)
-    return () => window.removeEventListener('open-cookie-banner', reopen)
+    window.addEventListener(OPEN_COOKIE_BANNER_EVENT, reopen)
+    return () => window.removeEventListener(OPEN_COOKIE_BANNER_EVENT, reopen)
   }, [])
 
   const choose = (value: Consent) => {
     try {
-      localStorage.setItem('cookie-consent', value)
+      localStorage.setItem(CONSENT_KEY, value)
     } catch {
       // Sans stockage, le choix vaut pour la visite en cours seulement
     }
     setGtagConsent(value)
     setVisible(false)
     // Prévient la popup newsletter qu'elle peut s'armer
-    window.dispatchEvent(new Event('cookie-consent-changed'))
+    window.dispatchEvent(new Event(CONSENT_CHANGED_EVENT))
   }
 
   if (!visible) return null

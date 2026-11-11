@@ -4,33 +4,41 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Gift, X, Loader2, CheckCircle, Check } from 'lucide-react'
 import { OFFERS } from '@/lib/newsletter/offers'
+import { CONSENT_KEY, CONSENT_CHANGED_EVENT } from '@/lib/consent'
 
-const STORAGE_KEY = 'lead-magnet'          // fermée ou envoyée : plus jamais
-const SESSION_KEY = 'lead-magnet-shown'    // déjà affichée pendant cette visite
+// ─── Quand afficher la popup ──────────────────────────────────────────────
+// Le visiteur se balade (2e page de contenu ou plus), ou vient d'obtenir son estimation.
+// Jamais pendant qu'il remplit une demande de devis, une seule fois par visite.
 
-// Blog uniquement : le lecteur cherche un conseil, un guide lui est utile.
-// Jamais sur l'accueil, ni pendant une estimation, un contact ou une prise de rendez-vous.
-const ALLOWED_PATHS = [/^\/blog(\/.*)?$/]
-function isAllowedPath(path: string | null): boolean {
-  return !!path && ALLOWED_PATHS.some((r) => r.test(path))
-}
+const CONTENT_PATHS = [/^\/$/, /^\/blog(\/.*)?$/, /^\/realisations(\/.*)?$/, /^\/avis$/]
+const QUOTE_PATHS = [/^\/estimation$/, /^\/contact$/, /^\/rappel$/, /^\/rendez-vous(\/.*)?$/]
+const QUOTE_DONE_PATHS = [/^\/estimation\/(resultat|confirmation)(\/.*)?$/]
+const ELIGIBLE_PATHS = [...CONTENT_PATHS, ...QUOTE_DONE_PATHS]
+const MIN_CONTENT_PAGES = 2
 
-// Stockage navigateur optionnel : si bloqué, la popup peut réapparaître, sans gravité
-function isDone(): boolean {
-  try { return localStorage.getItem(STORAGE_KEY) === 'done' } catch { return false }
+const matches = (path: string | null, list: RegExp[]) => !!path && list.some((r) => r.test(path))
+
+const DONE_KEY = 'lead-magnet'            // localStorage — fermée ou envoyée : plus jamais
+const SHOWN_KEY = 'lead-magnet-shown'     // sessionStorage — déjà affichée pendant cette visite
+const SKIP_KEY = 'lead-magnet-skip'       // sessionStorage — demande de devis commencée et non terminée
+const VIEWS_KEY = 'lead-magnet-views'     // sessionStorage — pages de contenu vues pendant cette visite
+const LAST_KEY = 'lead-magnet-last'       // sessionStorage — dernière page comptée (évite les doubles comptes)
+
+// Stockage navigateur optionnel : s'il est bloqué, on n'affiche simplement pas la popup
+function get(store: 'local' | 'session', key: string): string | null {
+  try { return (store === 'local' ? localStorage : sessionStorage).getItem(key) } catch { return null }
 }
-function markDone() {
-  try { localStorage.setItem(STORAGE_KEY, 'done') } catch { /* ignoré */ }
+function set(store: 'local' | 'session', key: string, value: string) {
+  try { (store === 'local' ? localStorage : sessionStorage).setItem(key, value) } catch { /* ignoré */ }
 }
-function shownThisSession(): boolean {
-  try { return sessionStorage.getItem(SESSION_KEY) === '1' } catch { return false }
-}
-function markShownThisSession() {
-  try { sessionStorage.setItem(SESSION_KEY, '1') } catch { /* ignoré */ }
-}
+const isDone = () => get('local', DONE_KEY) === 'done'
+const markDone = () => set('local', DONE_KEY, 'done')
+const isBlockedThisSession = () => get('session', SHOWN_KEY) === '1' || get('session', SKIP_KEY) === '1'
+const contentViews = () => Number(get('session', VIEWS_KEY) || '0')
 
 export function LeadMagnet() {
   const pathname = usePathname()
+  const [consentAnswered, setConsentAnswered] = useState(false)
   const [open, setOpen] = useState(false)
   const [offerId, setOfferId] = useState(OFFERS[0].id)
   const [email, setEmail] = useState('')
@@ -39,48 +47,55 @@ export function LeadMagnet() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
 
+  // Jamais avant que le visiteur ait répondu au bandeau cookies
   useEffect(() => {
-    let timer: number | undefined
-    let armed = false
+    const read = () => setConsentAnswered(!!get('local', CONSENT_KEY))
+    read()
+    window.addEventListener(CONSENT_CHANGED_EVENT, read)
+    return () => window.removeEventListener(CONSENT_CHANGED_EVENT, read)
+  }, [])
 
-    // Une seule ouverture par visite : on désarme dès l'affichage, et jamais après fermeture ou envoi
+  // Suivi du parcours de la visite
+  useEffect(() => {
+    if (!pathname) return
+    if (matches(pathname, QUOTE_DONE_PATHS)) {
+      // Estimation obtenue : la demande de devis est terminée, le guide redevient utile
+      set('session', SKIP_KEY, '0')
+    } else if (matches(pathname, QUOTE_PATHS)) {
+      set('session', SKIP_KEY, '1')
+    } else if (matches(pathname, CONTENT_PATHS) && get('session', LAST_KEY) !== pathname) {
+      set('session', LAST_KEY, pathname)
+      set('session', VIEWS_KEY, String(contentViews() + 1))
+    }
+  }, [pathname])
+
+  // Armement sur la page en cours : après 20 s ou 40 % de défilement
+  useEffect(() => {
+    if (!consentAnswered || !matches(pathname, ELIGIBLE_PATHS)) return
+    if (isDone() || isBlockedThisSession()) return
+    // Sur les pages de contenu, seulement à partir de la 2e page : le visiteur se balade
+    if (matches(pathname, CONTENT_PATHS) && contentViews() < MIN_CONTENT_PAGES) return
+
+    let timer: number | undefined
     const disarm = () => {
       window.clearTimeout(timer)
       window.removeEventListener('scroll', onScroll)
     }
     const show = () => {
-      if (isDone() || shownThisSession()) return disarm()
-      if (!isAllowedPath(window.location.pathname)) return
       disarm()
-      markShownThisSession()
+      if (isDone() || isBlockedThisSession()) return
+      set('session', SHOWN_KEY, '1')
       setOpen(true)
     }
-
-    // Apparaît après 20 secondes de lecture ou à 40 % de la page, jamais à l'arrivée
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight
       if (max > 0 && window.scrollY / max >= 0.4) show()
     }
 
-    // Armé seulement une fois que le visiteur a répondu au bandeau cookies
-    const arm = () => {
-      if (armed || isDone() || shownThisSession()) return
-      let answered = false
-      try { answered = !!localStorage.getItem('cookie-consent') } catch { answered = false }
-      if (!answered) return
-      armed = true
-      timer = window.setTimeout(show, 20000)
-      window.addEventListener('scroll', onScroll, { passive: true })
-    }
-
-    window.addEventListener('cookie-consent-changed', arm)
-    arm()
-    return () => {
-      window.clearTimeout(timer)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('cookie-consent-changed', arm)
-    }
-  }, [])
+    timer = window.setTimeout(show, 20000)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return disarm
+  }, [pathname, consentAnswered])
 
   const close = () => {
     markDone()
@@ -118,8 +133,8 @@ export function LeadMagnet() {
     }
   }
 
-  // Ne s'affiche jamais en dehors des pages de contenu, même après une navigation
-  if (!open || !isAllowedPath(pathname)) return null
+  // Masquée dès que le visiteur ouvre un formulaire (ex. : clic sur « Estimation gratuite »)
+  if (!open || !matches(pathname, ELIGIBLE_PATHS)) return null
 
   const offer = OFFERS.find((o) => o.id === offerId) ?? OFFERS[0]
 
