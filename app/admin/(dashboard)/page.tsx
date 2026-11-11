@@ -1,7 +1,22 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { Users, Calendar, Star, TrendingUp } from 'lucide-react'
-import { LEAD_STATUS_LABELS, LEAD_STATUS_STYLES, SERVICE_SHORT_LABELS, label } from '@/lib/lead-labels'
+import {
+  LEAD_STATUS_LABELS,
+  LEAD_STATUS_STYLES,
+  SERVICE_SHORT_LABELS,
+  SOURCE_LABELS,
+  label,
+  formatEuroRange,
+  isLeadStatus,
+} from '@/lib/lead-labels'
+import {
+  computePerformance,
+  formatDelay,
+  OPEN_PIPELINE_STATUSES,
+  PERFORMANCE_WINDOW_DAYS,
+  type PerformanceStats,
+} from '@/lib/performance'
 
 async function getStats() {
   try {
@@ -17,6 +32,112 @@ async function getStats() {
   }
 }
 
+async function getPerformance(): Promise<PerformanceStats | null> {
+  try {
+    const now = new Date()
+    const since = new Date(now.getTime() - PERFORMANCE_WINDOW_DAYS * 24 * 60 * 60 * 1000)
+    const leads = await prisma.lead.findMany({
+      where: { OR: [{ createdAt: { gte: since } }, { status: { in: OPEN_PIPELINE_STATUSES } }] },
+      select: {
+        status: true,
+        source: true,
+        createdAt: true,
+        estimateMin: true,
+        estimateMax: true,
+        events: { where: { type: { in: ['STATUS_CHANGED', 'NOTE'] } }, select: { type: true, createdAt: true } },
+      },
+    })
+    return computePerformance(leads, now)
+  } catch {
+    return null
+  }
+}
+
+function Metric({ title, value, hint }: { title: string; value: string; hint?: string }) {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+      <div className="text-sm text-slate-500">{title}</div>
+      <div className="text-2xl font-bold text-slate-800 mt-1">{value}</div>
+      {hint && <div className="text-xs text-slate-400 mt-1">{hint}</div>}
+    </div>
+  )
+}
+
+function PerformanceBlock({ stats }: { stats: PerformanceStats }) {
+  const evolution =
+    stats.evolutionPct === null
+      ? 'pas de période de comparaison'
+      : `${stats.evolutionPct > 0 ? '+' : ''}${stats.evolutionPct} % vs 30 jours précédents`
+  const topSource = stats.bySource[0]?.count ?? 1
+
+  return (
+    <section className="mb-8" aria-labelledby="performance-title">
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <h2 id="performance-title" className="text-lg font-semibold text-slate-800">Performance du site</h2>
+        <span className="text-xs text-slate-400">Conversion, sources et abandons : {PERFORMANCE_WINDOW_DAYS} derniers jours</span>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <Metric title="Demandes (30 jours)" value={String(stats.leads30)} hint={evolution} />
+        <Metric
+          title="Taux de conversion"
+          value={stats.conversionPct === null ? '—' : `${stats.conversionPct} %`}
+          hint={`${stats.converted90} gagnée(s) sur ${stats.leads90} demande(s)`}
+        />
+        <Metric
+          title="Devis en cours"
+          value={stats.pipeline.count === 0 ? '—' : formatEuroRange(stats.pipeline.min, stats.pipeline.max)}
+          hint={`${stats.pipeline.count} demande(s) ouverte(s), valeur estimée`}
+        />
+        <Metric
+          title="Première réponse"
+          value={formatDelay(stats.medianFirstActionHours)}
+          hint="délai médian de traitement"
+        />
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+          <h3 className="font-semibold text-slate-800 mb-3 text-sm">D’où viennent les demandes</h3>
+          {stats.bySource.length === 0 ? (
+            <p className="text-sm text-slate-400">Pas encore de demande.</p>
+          ) : (
+            <ul className="space-y-2.5">
+              {stats.bySource.map((s) => (
+                <li key={s.key}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-700">{SOURCE_LABELS[s.key] ?? 'Autre'}</span>
+                    <span className="text-slate-500">{s.count}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-100">
+                    <div className="h-2 rounded-full bg-brand-orange" style={{ width: `${Math.round((s.count / topSource) * 100)}%` }} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+          <h3 className="font-semibold text-slate-800 mb-3 text-sm">Pourquoi on perd des demandes</h3>
+          {stats.discarded.length === 0 ? (
+            <p className="text-sm text-slate-400">Aucune demande écartée.</p>
+          ) : (
+            <ul className="space-y-2">
+              {stats.discarded.map((d) => (
+                <li key={d.key} className="flex justify-between text-sm">
+                  <span className="text-slate-700">{isLeadStatus(d.key) ? LEAD_STATUS_LABELS[d.key] : d.key}</span>
+                  <span className="text-slate-500">{d.count}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 async function getRecentLeads() {
   try {
     return await prisma.lead.findMany({
@@ -29,7 +150,7 @@ async function getRecentLeads() {
 }
 
 export default async function AdminPage() {
-  const [stats, leads] = await Promise.all([getStats(), getRecentLeads()])
+  const [stats, leads, performance] = await Promise.all([getStats(), getRecentLeads(), getPerformance()])
 
   return (
     <div>
@@ -51,6 +172,8 @@ export default async function AdminPage() {
           </div>
         ))}
       </div>
+
+      {performance && <PerformanceBlock stats={performance} />}
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-5 border-b border-slate-100">
