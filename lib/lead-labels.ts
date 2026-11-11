@@ -223,6 +223,7 @@ export const EVENT_LABELS: Record<EventType, string> = {
   PHONE_CLICKED: 'Clic sur le numéro de téléphone',
   STATUS_CHANGED: 'Statut modifié',
   NOTE: 'Note interne',
+  FOLLOW_UP_SENT: 'Relance envoyée au client',
 }
 
 export const SOURCE_LABELS: Record<string, string> = {

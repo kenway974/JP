@@ -221,3 +221,239 @@ export async function sendOfferGuide(data: { to: string; offer: { title: string;
     `,
   })
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Relances clients et récap quotidien                                       */
+/* -------------------------------------------------------------------------- */
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function emailShell(params: { title: string; subtitle: string; bodyHtml: string; footerNote?: string }): string {
+  const { title, subtitle, bodyHtml, footerNote } = params
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)}</title>
+</head>
+<body style="font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: #1a2744; padding: 28px; text-align: center;">
+      <h1 style="color: #fff; margin: 0; font-size: 22px;">${escapeHtml(COMPANY_NAME)}</h1>
+      <p style="color: #94a3b8; margin: 8px 0 0;">${escapeHtml(subtitle)}</p>
+    </div>
+    <div style="padding: 32px; color: #1f2937; font-size: 15px; line-height: 1.55;">
+      ${bodyHtml}
+    </div>
+    <div style="background: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p style="margin: 0 0 8px;">${escapeHtml(COMPANY_NAME)} — ${escapeHtml(COMPANY_LOCATION)} — Depuis ${escapeHtml(COMPANY_SINCE)}<br />
+      ${escapeHtml(COMPANY_PHONE)} | ${escapeHtml(COMPANY_EMAIL)}</p>
+      ${footerNote ? `<p style="margin: 0 0 8px;">${footerNote}</p>` : ''}
+      <p style="margin: 0;"><a href="${SITE_URL}/confidentialite" style="color: #94a3b8;">Politique de confidentialité</a> | <a href="${SITE_URL}/mentions-legales" style="color: #94a3b8;">Mentions légales</a></p>
+    </div>
+  </div>
+</body>
+</html>`
+}
+
+function ctaButton(href: string, label: string, primary = true): string {
+  const background = primary ? '#f97316' : '#1a2744'
+  return `<a href="${href}" style="display: inline-block; background: ${background}; color: #fff; text-decoration: none; padding: 13px 24px; border-radius: 6px; font-weight: bold; font-size: 15px; margin: 6px;">${label}</a>`
+}
+
+export type FollowUpEmailKind = 'estimation' | 'devis'
+
+export interface SendFollowUpEmailParams {
+  to: string
+  firstName: string
+  kind: FollowUpEmailKind
+  serviceType: string
+  estimateMin: number
+  estimateMax: number
+  prospectId: string
+}
+
+const FOLLOW_UP_OPT_OUT =
+  'Vous recevez ce message suite à votre demande sur notre site. Pour ne plus recevoir de relance de notre part, répondez STOP à cet e-mail.'
+
+export function buildFollowUpEmail(params: SendFollowUpEmailParams): { subject: string; html: string } {
+  const { firstName, kind, serviceType, estimateMin, estimateMax, prospectId } = params
+  const name = escapeHtml(firstName)
+  const service = escapeHtml(serviceType)
+  const pid = encodeURIComponent(prospectId)
+
+  if (kind === 'devis') {
+    const replySubject = encodeURIComponent(`Mon devis — ${serviceType}`)
+    return {
+      subject: `Votre devis ${serviceType} : une question ?`,
+      html: emailShell({
+        title: `Votre devis — ${COMPANY_NAME}`,
+        subtitle: 'Votre devis est toujours valable',
+        bodyHtml: `
+      <p>Bonjour <strong>${name}</strong>,</p>
+      <p>Nous vous avons transmis un devis pour : <strong>${service}</strong>.</p>
+      <p>Avez-vous eu le temps de le consulter ? Si vous avez une question, si vous souhaitez ajuster un point ou fixer une date d'intervention, répondez simplement à cet e-mail ou appelez-nous.</p>
+      <div style="text-align: center; margin: 28px 0 8px;">
+        ${ctaButton(`tel:${COMPANY_PHONE_RAW}`, `📞 Appeler le ${escapeHtml(COMPANY_PHONE)}`)}
+        ${ctaButton(`mailto:${REPLY_TO}?subject=${replySubject}`, '✉️ Répondre par e-mail', false)}
+      </div>`,
+        footerNote: FOLLOW_UP_OPT_OUT,
+      }),
+    }
+  }
+
+  return {
+    subject: `Votre estimation ${serviceType} : on en parle ?`,
+    html: emailShell({
+      title: `Votre estimation — ${COMPANY_NAME}`,
+      subtitle: 'Votre projet est-il toujours d’actualité ?',
+      bodyHtml: `
+      <p>Bonjour <strong>${name}</strong>,</p>
+      <p>Il y a quelques jours, vous avez demandé une estimation pour : <strong>${service}</strong>.
+      Elle était comprise entre <strong>${estimateMin.toLocaleString('fr-FR')} €</strong> et <strong>${estimateMax.toLocaleString('fr-FR')} €</strong>.</p>
+      <p>Ce montant reste indicatif : le tarif réel est établi après une visite sur place. Si votre projet est toujours d'actualité, choisissez la suite qui vous arrange :</p>
+      <div style="text-align: center; margin: 28px 0 8px;">
+        ${ctaButton(`${SITE_URL}/rendez-vous?pid=${pid}`, '📅 Prendre rendez-vous')}
+        ${ctaButton(`${SITE_URL}/rappel?pid=${pid}`, '📞 Être rappelé(e)', false)}
+      </div>
+      <p style="font-size: 13px; color: #64748b;">Votre projet est reporté ou déjà réglé ? Ignorez simplement ce message.</p>`,
+      footerNote: FOLLOW_UP_OPT_OUT,
+    }),
+  }
+}
+
+export async function sendFollowUpEmail(params: SendFollowUpEmailParams) {
+  const { subject, html } = buildFollowUpEmail(params)
+  return getTransporter().sendMail({
+    from: FROM,
+    replyTo: REPLY_TO,
+    to: params.to,
+    subject,
+    html,
+  })
+}
+
+export interface DigestLeadItem {
+  id: string
+  firstName: string
+  city: string
+  serviceLabel: string
+  urgent: boolean
+  estimateMin: number
+  estimateMax: number
+}
+
+export interface DigestData {
+  /** Date du jour, déjà formatée (ex. « jeudi 20 novembre 2026 »). */
+  dateLabel: string
+  newLeads: DigestLeadItem[]
+  toProcessCount: number
+  toCompleteCount: number
+  visitsToPlan: DigestLeadItem[]
+  quotesToFollowUp: DigestLeadItem[]
+  followUpsSent: { firstName: string; kindLabel: string }[]
+}
+
+export function digestHasContent(d: DigestData): boolean {
+  return (
+    d.newLeads.length > 0 ||
+    d.toProcessCount > 0 ||
+    d.toCompleteCount > 0 ||
+    d.visitsToPlan.length > 0 ||
+    d.quotesToFollowUp.length > 0 ||
+    d.followUpsSent.length > 0
+  )
+}
+
+function digestList(title: string, items: DigestLeadItem[]): string {
+  if (items.length === 0) return ''
+  const rows = items
+    .slice(0, 10)
+    .map(
+      (l) => `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <a href="${SITE_URL}/admin/leads/${encodeURIComponent(l.id)}" style="color: #1a2744; font-weight: bold; text-decoration: none;">${escapeHtml(l.firstName)}</a>
+            ${l.urgent ? '<span style="background: #fee2e2; color: #b91c1c; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 6px;">Urgence</span>' : ''}
+            <div style="font-size: 12px; color: #64748b;">${escapeHtml(l.serviceLabel)} · ${escapeHtml(l.city)} · ${l.estimateMin.toLocaleString('fr-FR')} – ${l.estimateMax.toLocaleString('fr-FR')} €</div>
+          </td>
+        </tr>`,
+    )
+    .join('')
+  const more = items.length > 10 ? `<p style="font-size: 12px; color: #64748b;">… et ${items.length - 10} autre(s) dans l'administration.</p>` : ''
+  return `
+      <h3 style="color: #1a2744; margin: 28px 0 6px; font-size: 16px;">${escapeHtml(title)} (${items.length})</h3>
+      <table style="width: 100%; border-collapse: collapse;">${rows}</table>${more}`
+}
+
+function digestCounter(value: number, label: string): string {
+  return `
+        <td style="text-align: center; padding: 10px 4px;">
+          <div style="font-size: 26px; font-weight: bold; color: #1a2744;">${value}</div>
+          <div style="font-size: 11px; color: #64748b;">${escapeHtml(label)}</div>
+        </td>`
+}
+
+export function buildDailyDigest(d: DigestData): { subject: string; html: string } {
+  const sentBlock =
+    d.followUpsSent.length === 0
+      ? ''
+      : `
+      <h3 style="color: #1a2744; margin: 28px 0 6px; font-size: 16px;">Relances envoyées automatiquement (${d.followUpsSent.length})</h3>
+      <ul style="margin: 0; padding-left: 18px; color: #374151; font-size: 14px;">
+        ${d.followUpsSent.map((f) => `<li>${escapeHtml(f.firstName)} — ${escapeHtml(f.kindLabel)}</li>`).join('')}
+      </ul>`
+
+  const html = emailShell({
+    title: `Récap du jour — ${COMPANY_NAME}`,
+    subtitle: `Récap du ${d.dateLabel}`,
+    bodyHtml: `
+      <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border-radius: 8px;">
+        <tr>
+          ${digestCounter(d.newLeads.length, 'nouvelles (24 h)')}
+          ${digestCounter(d.toProcessCount, 'à traiter')}
+          ${digestCounter(d.toCompleteCount, 'à compléter')}
+          ${digestCounter(d.quotesToFollowUp.length, 'devis à relancer')}
+        </tr>
+      </table>
+      ${digestList('Nouvelles demandes', d.newLeads)}
+      ${digestList('Visites à planifier', d.visitsToPlan)}
+      ${digestList('Devis à relancer par téléphone', d.quotesToFollowUp)}
+      ${sentBlock}
+      <div style="text-align: center; margin: 32px 0 4px;">
+        ${ctaButton(`${SITE_URL}/admin/leads`, 'Ouvrir les demandes')}
+      </div>`,
+  })
+
+  const toTreat = d.toProcessCount + d.toCompleteCount
+  const subject =
+    toTreat > 0
+      ? `Récap du jour : ${toTreat} demande${toTreat > 1 ? 's' : ''} à traiter`
+      : 'Récap du jour : rien d’urgent'
+  return { subject, html }
+}
+
+/** Boîte qui reçoit le récap : celle des notifications du site, ou ADMIN_NOTIFY_EMAIL si renseignée. */
+export function getDigestRecipient(): string {
+  return process.env.ADMIN_NOTIFY_EMAIL || REPLY_TO
+}
+
+export async function sendDailyDigest(d: DigestData) {
+  const { subject, html } = buildDailyDigest(d)
+  return getTransporter().sendMail({
+    from: FROM,
+    replyTo: REPLY_TO,
+    to: getDigestRecipient(),
+    subject,
+    html,
+  })
+}

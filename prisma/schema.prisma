@@ -168,6 +168,7 @@ enum EventType {
   PHONE_CLICKED
   STATUS_CHANGED      // metadata : { from, to }
   NOTE                // metadata : { text }
+  FOLLOW_UP_SENT      // metadata : { kind: 'estimation' | 'devis', email, manual? }
 }
 
 enum BookingStatus {

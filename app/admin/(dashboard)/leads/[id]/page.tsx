@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { ArrowLeft, Phone, Mail, MapPin } from 'lucide-react'
 import type { LeadStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { sendManualFollowUp } from '@/lib/automations'
+import { isPlaceholderEmail } from '@/lib/follow-up-rules'
 import {
   LEAD_GROUPS,
   LEAD_STATUS_LABELS,
@@ -71,6 +74,19 @@ async function addNote(id: string, formData: FormData) {
   revalidateLead(id)
 }
 
+async function sendFollowUp(id: string) {
+  'use server'
+  let outcome = 'ok'
+  try {
+    await sendManualFollowUp(id)
+  } catch (err) {
+    console.error('[relance manuelle]', id, err)
+    outcome = 'erreur'
+  }
+  revalidateLead(id)
+  redirect(`/admin/leads/${id}?relance=${outcome}`)
+}
+
 function Row({ name, children }: { name: string; children: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 py-2.5 border-b border-slate-50 last:border-0">
@@ -102,8 +118,15 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-export default async function AdminLeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminLeadDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ relance?: string }>
+}) {
   const { id } = await params
+  const { relance } = await searchParams
 
   const lead = await prisma.lead.findUnique({
     where: { id },
@@ -233,6 +256,12 @@ export default async function AdminLeadDetailPage({ params }: { params: Promise<
                     <li key={event.id} className="flex justify-between gap-4 text-sm">
                       <span className="text-slate-700 flex flex-wrap items-center gap-1.5">
                         {EVENT_LABELS[event.type] ?? event.type}
+                        {event.type === 'FOLLOW_UP_SENT' && (
+                          <span className="text-slate-400">
+                            ({meta.kind === 'devis' ? 'devis' : 'estimation'}
+                            {meta.manual ? ', manuelle' : ', automatique'})
+                          </span>
+                        )}
                         {event.type === 'STATUS_CHANGED' && (
                           <>
                             <StatusBadge status={String(meta.from ?? '')} />
@@ -294,6 +323,29 @@ export default async function AdminLeadDetailPage({ params }: { params: Promise<
             </Card>
           ) : (
             <>
+              <Card title="Relance client">
+                {lead.email && !isPlaceholderEmail(lead.email) ? (
+                  <form action={sendFollowUp.bind(null, lead.id)}>
+                    <p className="text-xs text-slate-500 mb-3">
+                      Envoie tout de suite un e-mail de relance à {lead.email}. Sinon, la relance part toute seule
+                      après quelques jours sans réponse.
+                    </p>
+                    <button
+                      type="submit"
+                      className="w-full bg-brand-navy text-white px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90"
+                    >
+                      Envoyer la relance par e-mail
+                    </button>
+                  </form>
+                ) : (
+                  <p className="text-sm text-slate-500">Pas d’adresse e-mail valide : relance par téléphone.</p>
+                )}
+                {relance === 'ok' && <p className="text-sm text-green-700 mt-3">Relance envoyée.</p>}
+                {relance === 'erreur' && (
+                  <p className="text-sm text-red-700 mt-3">L’envoi a échoué. Vérifiez la configuration e-mail.</p>
+                )}
+              </Card>
+
               <Card title="Prochaine étape">
                 <div className="flex flex-col gap-2">
                   {NEXT_ACTIONS.filter((a) => a.status !== lead.status).map((action) => (

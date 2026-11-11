@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, Star, FileText, ArrowLeft, Menu, X, SlidersHorizontal, Image as ImageIcon } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Star, FileText, ArrowLeft, Menu, X, SlidersHorizontal, Image as ImageIcon, Zap } from 'lucide-react'
 import { LogoutButton } from './LogoutButton'
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { href: '/admin/blog', icon: FileText, label: 'Blog' },
   { href: '/admin/avis', icon: Star, label: 'Avis' },
   { href: '/admin/estimation', icon: SlidersHorizontal, label: 'Estimateur' },
+  { href: '/admin/automatisations', icon: Zap, label: 'Automatisations' },
 ]
 
 export function AdminSidebar({ companyShortName }: { companyShortName: string }) {
