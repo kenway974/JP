@@ -1,5 +1,7 @@
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { Users, Calendar, Star, TrendingUp } from 'lucide-react'
+import { LEAD_STATUS_LABELS, LEAD_STATUS_STYLES, SERVICE_SHORT_LABELS, label } from '@/lib/lead-labels'
 
 async function getStats() {
   try {
@@ -66,18 +68,17 @@ export default async function AdminPage() {
             <tbody className="divide-y divide-slate-50">
               {leads.map((lead) => (
                 <tr key={lead.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-slate-800">{lead.firstName}</td>
+                  <td className="px-4 py-3 font-medium text-slate-800">
+                    <Link href={`/admin/leads/${lead.id}`} className="hover:text-brand-navy hover:underline">
+                      {lead.firstName}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-slate-500">{lead.city}</td>
-                  <td className="px-4 py-3 text-slate-500">{lead.serviceType}</td>
+                  <td className="px-4 py-3 text-slate-500">{label(SERVICE_SHORT_LABELS, lead.serviceType)}</td>
                   <td className="px-4 py-3 text-slate-700">{lead.estimateMin.toLocaleString('fr-FR')}–{lead.estimateMax.toLocaleString('fr-FR')}€</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      lead.status === 'APPOINTMENT_BOOKED' ? 'bg-emerald-100 text-emerald-700' :
-                      lead.status === 'QUOTE_SENT' ? 'bg-blue-100 text-blue-700' :
-                      lead.status === 'CALLBACK_REQUESTED' ? 'bg-orange-100 text-orange-700' :
-                      'bg-slate-100 text-slate-600'
-                    }`}>
-                      {lead.status}
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${LEAD_STATUS_STYLES[lead.status]}`}>
+                      {LEAD_STATUS_LABELS[lead.status]}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-slate-400">{new Date(lead.createdAt).toLocaleDateString('fr-FR')}</td>

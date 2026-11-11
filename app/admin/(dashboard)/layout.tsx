@@ -2,6 +2,10 @@ import type { Metadata } from 'next'
 import { COMPANY_SHORT_NAME } from '@/lib/config'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
 
+// Les pages admin lisent la base à chaque visite. Sans ça, Next.js peut les pré-générer
+// au build avec les données (ou l'absence de données) de ce moment-là.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: `Administration | ${COMPANY_SHORT_NAME}`,
   robots: { index: false, follow: false },
