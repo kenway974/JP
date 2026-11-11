@@ -8,6 +8,7 @@ export interface NewsletterOffer {
   label: string        // libellé court dans le sélecteur
   title: string        // titre du guide
   teaser: string       // phrase qui donne envie
+  highlights: string[] // 3 points concrets affichés dans la popup : ce que le visiteur va recevoir
   items: string[]      // contenu réel du guide, envoyé par email
   cta: { label: string; href: string }
 }
@@ -15,9 +16,14 @@ export interface NewsletterOffer {
 export const OFFERS: NewsletterOffer[] = [
   {
     id: 'guide-chaudiere',
-    label: 'Entretien chaudière',
+    label: 'Chaudière',
     title: "Le guide d'entretien de votre chaudière",
     teaser: 'Les contrôles à faire chaque année, et ceux qui ne doivent jamais attendre.',
+    highlights: [
+      'La bonne pression et quand s\'inquiéter',
+      'Purger ses radiateurs soi-même',
+      'Les signes qui imposent d\'appeler un pro',
+    ],
     items: [
       "Vérifiez la pression de l'installation : elle se situe en général entre 1 et 1,5 bar à froid. Si elle chute souvent, il y a une fuite à faire contrôler.",
       "Purgez les radiateurs qui chauffent mal en bas : de l'air est piégé dans le circuit.",
@@ -29,9 +35,14 @@ export const OFFERS: NewsletterOffer[] = [
   },
   {
     id: 'aides-renovation',
-    label: 'Aides et réductions',
+    label: 'Aides',
     title: 'Les aides à la rénovation énergétique, par où commencer',
     teaser: 'Ce que vous pouvez cumuler, et les conditions à vérifier avant de signer.',
+    highlights: [
+      'Les 4 aides possibles, expliquées simplement',
+      'La réduction d\'impôt sur l\'entretien',
+      'Ce qu\'il faut vérifier avant de signer',
+    ],
     items: [
       "MaPrimeRénov' : aide de l'État, sous conditions de revenus, pour certains travaux de rénovation énergétique.",
       "Certificats d'économies d'énergie (CEE) : primes versées selon la nature des travaux, par les fournisseurs d'énergie.",
@@ -46,6 +57,11 @@ export const OFFERS: NewsletterOffer[] = [
     label: 'Pompe à chaleur',
     title: 'Pompe à chaleur : bien la choisir en 4 questions',
     teaser: 'Les questions à se poser avant de demander un devis, pour comparer sans se faire piéger.',
+    highlights: [
+      'Air/air ou air/eau : laquelle pour votre logement',
+      'Les questions à poser avant un devis',
+      'Comment comparer le vrai coût',
+    ],
     items: [
       'Appartement ou maison ? La réponse oriente vers une PAC air/air ou air/eau.',
       "Quels émetteurs avez-vous ? Des radiateurs haute température ne se comportent pas comme un plancher chauffant.",

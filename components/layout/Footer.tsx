@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { CookieSettingsButton } from '@/components/layout/CookieSettingsButton'
 import { Phone, Mail, Instagram, MapPin, Clock, Flame, Shield, Award } from 'lucide-react'
 import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_PHONE, COMPANY_PHONE_RAW, COMPANY_EMAIL, COMPANY_LOCATION, COMPANY_SINCE, COMPANY_LOCATION_IN } from '@/lib/config'
 
@@ -77,6 +78,9 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookieSettingsButton />
+              </li>
             </ul>
           </div>
 

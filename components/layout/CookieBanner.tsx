@@ -20,6 +20,10 @@ export function CookieBanner() {
       // Stockage bloqué (navigation privée) : le bandeau reste affiché
       setVisible(true)
     }
+    // Lien « Gérer les cookies » du footer : rouvre le bandeau pour changer d'avis
+    const reopen = () => setVisible(true)
+    window.addEventListener('open-cookie-banner', reopen)
+    return () => window.removeEventListener('open-cookie-banner', reopen)
   }, [])
 
   const choose = (value: Consent) => {
